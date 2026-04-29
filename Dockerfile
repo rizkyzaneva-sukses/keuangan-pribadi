@@ -18,7 +18,7 @@ ARG SESSION_SECRET
 ARG NODE_ENV
 ENV DATABASE_URL=$DATABASE_URL
 ENV SESSION_SECRET=$SESSION_SECRET
-ENV NODE_ENV=${NODE_ENV:-production}
+ENV NODE_ENV="production"
 ENV NEXT_TELEMETRY_DISABLED=1
 # Ubah sqlite jadi postgresql untuk build Docker
 RUN sed -i 's/provider = "sqlite"/provider = "postgresql"/g' prisma/schema.prisma
