@@ -3,13 +3,11 @@ import bcrypt from "bcryptjs";
 import "dotenv/config";
 
 async function main() {
-  // Create user Rizky
+  // Create user Rizky (only set password on first create, not on update)
   const hashedPassword = await bcrypt.hash("rizky123", 12);
   const user = await prisma.user.upsert({
     where: { email: "rizky@example.com" },
-    update: {
-      passwordHash: hashedPassword,
-    },
+    update: {},
     create: {
       email: "rizky@example.com",
       passwordHash: hashedPassword,
