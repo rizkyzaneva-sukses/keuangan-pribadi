@@ -21,7 +21,7 @@ ENV SESSION_SECRET=$SESSION_SECRET
 ENV NODE_ENV="production"
 ENV NEXT_TELEMETRY_DISABLED=1
 # Ubah sqlite jadi postgresql untuk build Docker
-RUN sed -i 's/provider = "sqlite"/provider = "postgresql"/g' prisma/schema.prisma
+RUN node -e "const fs = require('fs'); const file = 'prisma/schema.prisma'; let data = fs.readFileSync(file, 'utf8'); data = data.replace(/provider\s*=\s*\"sqlite\"/g, 'provider = \"postgresql\"'); fs.writeFileSync(file, data);"
 RUN npx prisma generate
 # Build Next.js (DATABASE_URL sudah tersedia sebagai ENV)
 RUN npm run build
