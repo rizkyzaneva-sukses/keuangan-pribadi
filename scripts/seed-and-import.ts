@@ -1,16 +1,6 @@
-import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { db } from "../lib/db";
 import { createHash } from "crypto";
-
-// bcryptjs sync fallback — pakai hash sederhana dulu, nanti bisa update password via app
-// Tapi karena auth pakai bcryptjs, kita import langsung
 import bcrypt from "bcryptjs";
-
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL || "file:./dev.db",
-});
-const db = new PrismaClient({ adapter } as any);
-
 const EMAIL = "rizky@example.com";
 const PASSWORD = "rizky123";
 const NAMA = "Rizky";
