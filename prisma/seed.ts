@@ -4,12 +4,12 @@ import "dotenv/config";
 
 async function main() {
   // Create user Rizky (only set password on first create, not on update)
-  const hashedPassword = await bcrypt.hash("rizky123", 12);
+  const hashedPassword = await bcrypt.hash("Income10MpertahunInsyaaAllooh", 12);
   const user = await prisma.user.upsert({
-    where: { email: "rizky@example.com" },
+    where: { email: "rizky@maulanacorp.com" },
     update: {},
     create: {
-      email: "rizky@example.com",
+      email: "rizky@maulanacorp.com",
       passwordHash: hashedPassword,
       nama: "Rizky",
     },
