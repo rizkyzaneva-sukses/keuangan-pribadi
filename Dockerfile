@@ -25,6 +25,7 @@ RUN node -e "const fs = require('fs'); const file = 'prisma/schema.prisma'; let 
 RUN npx prisma generate
 # Build Next.js (DATABASE_URL sudah tersedia sebagai ENV)
 RUN npm run build
+RUN npm prune --omit=dev
 
 # 3. Production image, copy all the files and run next
 FROM base AS runner
@@ -44,8 +45,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Copy Prisma schema + migrations + CLI untuk db push saat startup
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/start.sh ./start.sh
 
 RUN chmod +x ./start.sh
