@@ -12,11 +12,18 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Generate Prisma Client (Ubah sqlite jadi postgresql untuk Docker/Easypanel)
+# Terima build-args dari Easypanel
+ARG DATABASE_URL
+ARG SESSION_SECRET
+ARG NODE_ENV
+ENV DATABASE_URL=$DATABASE_URL
+ENV SESSION_SECRET=$SESSION_SECRET
+ENV NODE_ENV=${NODE_ENV:-production}
+ENV NEXT_TELEMETRY_DISABLED=1
+# Ubah sqlite jadi postgresql untuk build Docker
 RUN sed -i 's/provider = "sqlite"/provider = "postgresql"/g' prisma/schema.prisma
 RUN npx prisma generate
-# Build Next.js
-ENV NEXT_TELEMETRY_DISABLED=1
+# Build Next.js (DATABASE_URL sudah tersedia sebagai ENV)
 RUN npm run build
 
 # 3. Production image, copy all the files and run next

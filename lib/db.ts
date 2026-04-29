@@ -1,16 +1,24 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL || "file:./dev.db",
-});
+const isPostgres = (process.env.DATABASE_URL || "").startsWith("postgres");
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let adapterInstance: any = undefined;
+
+if (!isPostgres) {
+  // SQLite (lokal dev) — lazy import agar tidak crash di Docker saat PostgreSQL
+  const { PrismaBetterSqlite3 } = require("@prisma/adapter-better-sqlite3");
+  adapterInstance = new PrismaBetterSqlite3({
+    url: process.env.DATABASE_URL || "file:./dev.db",
+  });
+}
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
 export const db =
   globalForPrisma.prisma ??
   new PrismaClient({
-    adapter,
+    ...(adapterInstance ? { adapter: adapterInstance } : {}),
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 
