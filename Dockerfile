@@ -13,7 +13,8 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Generate Prisma Client
+# Generate Prisma Client (Ubah sqlite jadi postgresql untuk Docker/Easypanel)
+RUN sed -i 's/provider = "sqlite"/provider = "postgresql"/g' prisma/schema.prisma
 RUN npx prisma generate
 # Build Next.js
 ENV NEXT_TELEMETRY_DISABLED 1
