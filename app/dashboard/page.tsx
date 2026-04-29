@@ -1,0 +1,110 @@
+import { requireUser } from "@/lib/auth";
+import { db } from "@/lib/db";
+import Link from "next/link";
+import { AppShell } from "@/components/AppShell";
+import { formatRupiah } from "@/lib/format";
+
+export default async function DashboardPage() {
+  const { userId, email } = await requireUser();
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { nama: true, email: true },
+  });
+
+  const [walletPos, totalKas, totalInvestasi, totalZakat] = await Promise.all([
+    db.walletPos.findMany({
+      where: { userId },
+      include: { pos: true },
+      orderBy: { pos: { urutan: "asc" } },
+    }),
+    db.kas.aggregate({
+      where: { userId },
+      _sum: { jumlah: true },
+    }),
+    db.trxInvestasi.count({ where: { userId } }),
+    db.zakat.aggregate({
+      where: { userId, status: "BELUM" },
+      _sum: { jumlah: true },
+    }),
+  ]);
+
+  const totalSaldoWallet = walletPos.reduce((sum, w) => sum + w.saldoSaatIni, 0);
+
+  return (
+    <AppShell user={user || { email }} active="/dashboard">
+      <div className="page-header mb-5">
+        <h2>Dashboard Overview</h2>
+        <p>Ringkasan kondisi keuangan dan portofolio investasi Anda.</p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <Card label="Total Saldo Wallet" value={formatRupiah(totalSaldoWallet)} isCurrency valueNumber={totalSaldoWallet} />
+        <Card label="Total Kas" value={formatRupiah(totalKas._sum.jumlah || 0)} isCurrency valueNumber={totalKas._sum.jumlah || 0} />
+        <Card label="Transaksi Investasi" value={String(totalInvestasi)} />
+        <Card label="Zakat Belum Dibayar" value={formatRupiah(totalZakat._sum.jumlah || 0)} isCurrency valueNumber={totalZakat._sum.jumlah || 0} isZakat />
+      </div>
+
+      <section className="mt-6 card">
+        <div className="section-title">Wallet Pos Alokasi</div>
+        {walletPos.length === 0 ? (
+          <p className="text-[0.8rem]" style={{ color: "var(--text-secondary)" }}>Belum ada wallet pos. Setup template alokasi terlebih dahulu.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {walletPos.map((w) => (
+              <div
+                key={w.id}
+                className="flex flex-col justify-between rounded-lg p-3 transition-colors hover:border-[var(--text-muted)]"
+                style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--bg-border)" }}
+              >
+                <div className="flex items-start justify-between mb-1.5">
+                  <div>
+                    <div className="text-[0.8rem] font-medium" style={{ color: "var(--text-primary)" }}>{w.pos.nama}</div>
+                    <div className="text-[0.7rem] mt-0.5" style={{ color: "var(--text-secondary)" }}>{w.pos.persentase}% alokasi</div>
+                  </div>
+                </div>
+                <div className="mt-1.5">
+                  <div className="text-[1rem] font-bold" style={{ color: w.saldoSaatIni >= 0 ? "var(--accent-green)" : "var(--accent-red)" }}>
+                    {formatRupiah(w.saldoSaatIni)}
+                  </div>
+                  <div className="text-[0.65rem] mt-1 flex justify-between" style={{ color: "var(--text-muted)" }}>
+                    <span>In: {formatRupiah(w.totalMasuk)}</span>
+                    <span>Out: {formatRupiah(w.totalKeluar)}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </AppShell>
+  );
+}
+
+function Card({
+  label,
+  value,
+  isCurrency,
+  valueNumber,
+  isZakat
+}: {
+  label: string;
+  value: string;
+  isCurrency?: boolean;
+  valueNumber?: number;
+  isZakat?: boolean;
+}) {
+  let valueColor = "var(--text-primary)";
+  if (isCurrency && valueNumber !== undefined) {
+    if (isZakat && valueNumber > 0) valueColor = "var(--accent-red)";
+    else if (valueNumber > 0) valueColor = "var(--accent-green)";
+    else if (valueNumber < 0) valueColor = "var(--accent-red)";
+  }
+
+  return (
+    <div className="stat-card">
+      <div className="stat-label">{label}</div>
+      <div className="stat-value" style={{ color: valueColor }}>{value}</div>
+    </div>
+  );
+}

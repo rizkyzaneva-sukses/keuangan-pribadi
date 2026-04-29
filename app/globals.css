@@ -1,26 +1,253 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Inter", var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", var(--font-geist-mono), monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --bg-base:       #0a0f1e;
+  --bg-surface:    #0f1629;
+  --bg-elevated:   #161e35;
+  --bg-border:     #1e2a45;
+  --text-primary:  #e8edf5;
+  --text-secondary:#94a3b8;
+  --text-muted:    #4b5e7a;
+  --accent-gold:   #d4a843;
+  --accent-gold-hover: #e8bc55;
+  --accent-green:  #34d399;
+  --accent-red:    #f87171;
+  --accent-blue:   #60a5fa;
+  --radius-sm:     0.375rem;
+  --radius-md:     0.5rem;
+  --radius-lg:     0.75rem;
+}
+
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  font-size: 14px; /* Base size slightly smaller for comfort */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', var(--font-sans);
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ─── Global form element reset ─── */
+input, select, textarea, button {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* ─── Utility classes ─── */
+@layer utilities {
+  .card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--bg-border);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    transition: border-color 0.2s ease;
+  }
+  .card:hover {
+    border-color: var(--text-muted);
+  }
+
+  .btn-primary {
+    background-color: var(--accent-gold);
+    color: #0a0f1e;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+  }
+  .btn-primary:hover {
+    background-color: var(--accent-gold-hover);
+    box-shadow: 0 0 16px rgba(212, 168, 67, 0.2);
+  }
+
+  .btn-ghost {
+    border: 1px solid var(--bg-border);
+    color: var(--text-secondary);
+    background-color: transparent;
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+  }
+  .btn-ghost:hover {
+    border-color: var(--text-secondary);
+    background-color: rgba(255,255,255,0.03);
+  }
+
+  .btn-danger {
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    color: var(--accent-red);
+    background-color: transparent;
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+  }
+  .btn-danger:hover {
+    background-color: var(--accent-red);
+    color: #ffffff;
+  }
+
+  .badge-green {
+    background-color: rgba(52, 211, 153, 0.1);
+    color: var(--accent-green);
+    border: 1px solid rgba(52, 211, 153, 0.2);
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+  .badge-yellow {
+    background-color: rgba(212, 168, 67, 0.1);
+    color: var(--accent-gold);
+    border: 1px solid rgba(212, 168, 67, 0.2);
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+  .badge-red {
+    background-color: rgba(248, 113, 113, 0.1);
+    color: var(--accent-red);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+  .badge-muted {
+    background-color: var(--bg-elevated);
+    color: var(--text-secondary);
+    border: 1px solid var(--bg-border);
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+    display: block;
+    font-weight: 500;
+  }
+  .section-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  /* ─── Consistent form input styling ─── */
+  .form-input {
+    width: 100%;
+    background-color: var(--bg-base);
+    border: 1px solid var(--bg-border);
+    color: var(--text-primary);
+    border-radius: var(--radius-md);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .form-input:focus {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 0 2px rgba(212, 168, 67, 0.15);
+  }
+  .form-input::placeholder {
+    color: var(--text-muted);
+  }
+
+  /* ─── Table styling ─── */
+  .data-table {
+    width: 100%;
+    font-size: 0.85rem;
+    border-collapse: collapse;
+  }
+  .data-table thead {
+    border-bottom: 1px solid var(--bg-border);
+    background-color: var(--bg-elevated);
+  }
+  .data-table thead th {
+    text-align: left;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+  }
+  .data-table tbody tr {
+    border-bottom: 1px solid var(--bg-border);
+    transition: background-color 0.15s ease;
+  }
+  .data-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+  .data-table tbody tr:last-child {
+    border-bottom: none;
+  }
+  .data-table tbody td {
+    padding: 0.5rem 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  /* ─── Summary stat card ─── */
+  .stat-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--bg-border);
+    border-radius: var(--radius-lg);
+    padding: 0.875rem 1rem;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .stat-card:hover {
+    border-color: var(--text-muted);
+    transform: translateY(-1px);
+  }
+  .stat-card .stat-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 0.375rem;
+  }
+  .stat-card .stat-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* ─── Page header ─── */
+  .page-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+  .page-header p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.125rem;
+  }
 }

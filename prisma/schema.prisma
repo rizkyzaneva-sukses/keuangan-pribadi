@@ -1,0 +1,421 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum ArahTransaksiInvestasi {
+  IN
+  OUT
+}
+
+enum KategoriTransaksiInvestasi {
+  IN_DIVIDEND
+  IN_CAPITAL_RETURN
+  IN_CAPITAL_RETURN_PLUS_PROFIT
+  IN_OTHER
+  OUT_BUSINESS_CAPITAL
+  OUT_TOPUP_CAPITAL
+  OUT_OTHER
+}
+
+enum StatusInvestasi {
+  ACTIVE
+  CLOSED
+  ARCHIVED
+}
+
+enum TipeInvestasi {
+  BISNIS
+  TEMAN
+  MUROBAHAH
+}
+
+enum JenisKas {
+  MASUK
+  KELUAR
+}
+
+enum StatusInvestasiTeman {
+  AKTIF
+  SELESAI
+}
+
+enum StatusMurobahah {
+  AKTIF
+  LUNAS
+}
+
+enum SumberZakat {
+  DEVIDEN
+  MUROBAHAH
+  BISNIS
+}
+
+enum StatusZakat {
+  BELUM
+  SEBAGIAN
+  SUDAH
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  passwordHash String
+  nama         String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  kategoriKas        KategoriKas[]
+  kas                Kas[]
+  investasi          Investasi[]
+  templateAlokasi    TemplateAlokasi[]
+  penarikan          Penarikan[]
+  investasiTeman     InvestasiTeman[]
+  murobahah          Murobahah[]
+  investasiBisnis    InvestasiBisnis[]
+  zakat              Zakat[]
+  pembayaranZakat    PembayaranZakat[]
+  walletPos          WalletPos[]
+  trxInvestasi       TrxInvestasi[]
+  deviden            Deviden[]
+  imbalHasilDiterima ImbalHasilDiterima[]
+  nilaiAktiva        NilaiAktiva[]
+}
+
+model KategoriKas {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  nama      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kas  Kas[]
+
+  @@unique([userId, nama])
+}
+
+model Kas {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  kategoriId   Int
+  tanggal      DateTime
+  jenis        JenisKas
+  keterangan   String
+  jumlah       Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kategori KategoriKas @relation(fields: [kategoriId], references: [id], onDelete: Restrict)
+
+  @@index([userId, tanggal])
+  @@index([kategoriId])
+}
+
+model Investasi {
+  id         Int             @id @default(autoincrement())
+  userId     Int
+  nama       String
+  partner    String?
+  tipe       TipeInvestasi
+  status     StatusInvestasi @default(ACTIVE)
+  catatan    String?
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transaksi          TrxInvestasi[]
+  templateAssignment TemplateAssignment?
+  overrides          TemplateOverride[]
+
+  @@index([userId, tipe, status])
+}
+
+model TrxInvestasi {
+  id                Int                       @id @default(autoincrement())
+  userId            Int
+  investasiId       Int
+  tanggal           DateTime
+  arah              ArahTransaksiInvestasi
+  kategori          KategoriTransaksiInvestasi
+  principal         Int                       @default(0)
+  profit            Int                       @default(0)
+  total             Int
+  metodeBayar       String?
+  akun              String?
+  catatan           String?
+  sudahDialokasikan Boolean                   @default(false)
+  sudahDizakati     Boolean                   @default(false)
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  investasi Investasi  @relation(fields: [investasiId], references: [id], onDelete: Cascade)
+  alokasiLog AlokasiLog[]
+  zakat     Zakat[]
+
+  @@index([investasiId, tanggal])
+  @@index([userId, tanggal])
+}
+
+model TemplateAlokasi {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  nama       String
+  catatan    String?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pos         PosAlokasi[]
+  assignment  TemplateAssignment[]
+  alokasiLog  AlokasiLog[]
+
+  @@unique([userId, isDefault])
+  @@index([userId, isDefault])
+}
+
+model PosAlokasi {
+  id          Int      @id @default(autoincrement())
+  templateId  Int
+  nama        String
+  persentase  Int
+  urutan      Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  template   TemplateAlokasi @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  walletPos  WalletPos?
+  alokasiLog AlokasiLog[]
+  overrides  TemplateOverride[]
+
+  @@unique([templateId, nama])
+  @@index([templateId])
+}
+
+model TemplateAssignment {
+  id          Int      @id @default(autoincrement())
+  investasiId Int      @unique
+  templateId  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  investasi Investasi      @relation(fields: [investasiId], references: [id], onDelete: Cascade)
+  template  TemplateAlokasi @relation(fields: [templateId], references: [id], onDelete: Cascade)
+}
+
+// Override persentase per pos per investasi (opsional, menimpa nilai default template)
+model TemplateOverride {
+  id          Int      @id @default(autoincrement())
+  investasiId Int
+  posId       Int
+  persentase  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  investasi Investasi  @relation(fields: [investasiId], references: [id], onDelete: Cascade)
+  pos       PosAlokasi @relation(fields: [posId], references: [id], onDelete: Cascade)
+
+  @@unique([investasiId, posId])
+  @@index([investasiId])
+}
+
+model WalletPos {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  posId         Int      @unique
+  saldoSaatIni  Int      @default(0)
+  totalMasuk    Int      @default(0)
+  totalKeluar   Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pos  PosAlokasi @relation(fields: [posId], references: [id], onDelete: Cascade)
+  penarikan Penarikan[]
+
+  @@index([userId])
+}
+
+model AlokasiLog {
+  id         Int      @id @default(autoincrement())
+  trxId      Int
+  posId      Int
+  templateId Int
+  nominal    Int
+  createdAt  DateTime @default(now())
+
+  trx      TrxInvestasi    @relation(fields: [trxId], references: [id], onDelete: Cascade)
+  pos      PosAlokasi      @relation(fields: [posId], references: [id], onDelete: Restrict)
+  template TemplateAlokasi @relation(fields: [templateId], references: [id], onDelete: Restrict)
+
+  @@index([trxId])
+  @@index([posId])
+}
+
+model Penarikan {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  walletPosId Int
+  nominal    Int
+  tanggal    DateTime
+  akun       String?
+  keterangan String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletPos WalletPos @relation(fields: [walletPosId], references: [id], onDelete: Restrict)
+
+  @@index([userId, tanggal])
+}
+
+model InvestasiTeman {
+  id          Int                  @id @default(autoincrement())
+  userId      Int
+  namaTeman   String
+  modal       Int
+  tanggalMulai DateTime
+  status      StatusInvestasiTeman @default(AKTIF)
+  catatan     String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviden Deviden[]
+
+  @@index([userId, status])
+}
+
+model Deviden {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  investasiTemanId Int
+  tanggal          DateTime
+  jumlah           Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  investasiTeman InvestasiTeman @relation(fields: [investasiTemanId], references: [id], onDelete: Cascade)
+  zakat          Zakat[]
+
+  @@index([investasiTemanId, tanggal])
+}
+
+model Murobahah {
+  id              Int              @id @default(autoincrement())
+  userId          Int
+  namaPartner     String
+  pokok           Int
+  totalImbalHasil Int
+  tanggalMulai    DateTime
+  jatuhTempo      DateTime
+  status          StatusMurobahah  @default(AKTIF)
+  catatan         String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  imbalHasilDiterima ImbalHasilDiterima[]
+
+  @@index([userId, status])
+}
+
+model ImbalHasilDiterima {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  murobahahId Int
+  tanggal     DateTime
+  jumlah      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  murobahah Murobahah @relation(fields: [murobahahId], references: [id], onDelete: Cascade)
+  zakat     Zakat[]
+
+  @@index([murobahahId, tanggal])
+}
+
+model InvestasiBisnis {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  nama       String
+  catatan    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nilaiAktiva NilaiAktiva[]
+
+  @@index([userId])
+}
+
+model NilaiAktiva {
+  id                Int      @id @default(autoincrement())
+  userId            Int
+  investasiBisnisId Int
+  tahunHaul         Int
+  nilai             Int
+  tanggalHaul       DateTime
+  sudahDizakati     Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  investasiBisnis InvestasiBisnis @relation(fields: [investasiBisnisId], references: [id], onDelete: Cascade)
+  zakat           Zakat[]
+
+  @@unique([investasiBisnisId, tahunHaul])
+}
+
+model Zakat {
+  id                    Int         @id @default(autoincrement())
+  userId                Int
+  sumber                SumberZakat
+  status                StatusZakat @default(BELUM)
+  tahun                 Int
+  jumlah                Int
+  sudahDibayar          Int         @default(0)
+  tanggalWajib          DateTime
+  tanggalBayar          DateTime?
+  catatan               String?
+  devidenId             Int?
+  imbalHasilDiterimaId  Int?
+  nilaiAktivaId         Int?
+  trxInvestasiId        Int?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviden            Deviden?           @relation(fields: [devidenId], references: [id], onDelete: Cascade)
+  imbalHasilDiterima ImbalHasilDiterima? @relation(fields: [imbalHasilDiterimaId], references: [id], onDelete: Cascade)
+  nilaiAktiva        NilaiAktiva?       @relation(fields: [nilaiAktivaId], references: [id], onDelete: Cascade)
+  trxInvestasi       TrxInvestasi?      @relation(fields: [trxInvestasiId], references: [id], onDelete: Cascade)
+  pembayaran         PembayaranZakat[]
+
+  @@index([userId, status, tahun])
+}
+
+model PembayaranZakat {
+  id         Int      @id @default(autoincrement())
+  zakatId    Int
+  userId     Int
+  tanggal    DateTime
+  jumlah     Int
+  keterangan String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  zakat Zakat @relation(fields: [zakatId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([zakatId])
+  @@index([userId, tanggal])
+}
