@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { IronSessionOptions, getIronSession } from "iron-session";
+import { SessionOptions, getIronSession } from "iron-session";
 
 export type SessionData = {
   userId?: number;
@@ -7,7 +7,7 @@ export type SessionData = {
   isLoggedIn: boolean;
 };
 
-export const sessionOptions: IronSessionOptions = {
+export const sessionOptions: SessionOptions = {
   password: process.env.SESSION_SECRET || "dev-secret-dev-secret-dev-secret-32char",
   cookieName: "keuangan_pribadi_session",
   cookieOptions: {

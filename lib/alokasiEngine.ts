@@ -25,7 +25,7 @@ export async function runAlokasi(trxId: number) {
     },
   });
 
-  let template = assignment?.template;
+  let template = assignment?.template || null;
 
   if (!template) {
     template = await db.templateAlokasi.findFirst({
