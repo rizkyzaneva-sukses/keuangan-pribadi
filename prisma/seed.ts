@@ -28,16 +28,20 @@ async function main() {
   }
 
   // Create template default
-  const template = await prisma.templateAlokasi.upsert({
-    where: { userId_isDefault: { userId: user.id, isDefault: true } },
-    update: {},
-    create: {
-      userId: user.id,
-      nama: "Template Default Rizky",
-      catatan: "Template alokasi profit default",
-      isDefault: true,
-    },
+  let template = await prisma.templateAlokasi.findFirst({
+    where: { userId: user.id, isDefault: true },
   });
+
+  if (!template) {
+    template = await prisma.templateAlokasi.create({
+      data: {
+        userId: user.id,
+        nama: "Template Default Rizky",
+        catatan: "Template alokasi profit default",
+        isDefault: true,
+      },
+    });
+  }
 
   // Create pos alokasi default
   const posData = [

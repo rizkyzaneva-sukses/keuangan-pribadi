@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { runAlokasiDeviden } from "@/lib/alokasiEngine";
 
 export async function POST(req: NextRequest) {
   const { userId } = await requireUser();
@@ -20,10 +21,16 @@ export async function POST(req: NextRequest) {
   const jml = Number(jumlah);
 
   const result = await db.$transaction(async (tx) => {
+    const source = await tx.investasiTeman.findFirst({
+      where: { id: Number(investasiTemanId), userId },
+      select: { templateId: true },
+    });
+
     const deviden = await tx.deviden.create({
       data: {
         userId,
         investasiTemanId: Number(investasiTemanId),
+        templateId: source?.templateId ?? null,
         tanggal: tgl,
         jumlah: jml,
       },
@@ -45,6 +52,8 @@ export async function POST(req: NextRequest) {
 
     return deviden;
   });
+
+  await runAlokasiDeviden(result.id);
 
   return NextResponse.json(result);
 }

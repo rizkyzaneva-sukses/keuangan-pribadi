@@ -101,6 +101,7 @@ export default async function PanduanPage() {
                 <li>Total persentase pos dalam satu template <strong>harus 100%</strong>.</li>
                 <li>Template <strong>DEFAULT</strong> akan otomatis digunakan untuk investasi yang tidak punya template spesifik.</li>
                 <li>Setiap investasi bisa di-assign template yang berbeda saat pembuatan.</li>
+                <li>Card template punya tombol <strong>Edit</strong> untuk mengubah nama, catatan, pos, dan persentase.</li>
               </ul>
 
               <div className="font-medium text-[var(--text-primary)] mt-3">⚙ Override % per Investasi</div>

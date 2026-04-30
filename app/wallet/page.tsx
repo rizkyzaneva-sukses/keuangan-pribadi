@@ -32,6 +32,9 @@ export default async function WalletPage() {
         Total saldo wallet:{" "}
         <span className="font-semibold" style={{ color: "var(--accent-blue)" }}>{formatRupiah(totalSaldo)}</span>
       </p>
+      <p className="mb-5 text-[0.75rem]" style={{ color: "var(--text-muted)" }}>
+        Wallet baru muncul otomatis saat Anda menambahkan pos baru di <a href="/templates" style={{ color: "var(--accent-gold)" }}>Template Alokasi</a>.
+      </p>
 
       <div className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {walletPos.map((w) => (

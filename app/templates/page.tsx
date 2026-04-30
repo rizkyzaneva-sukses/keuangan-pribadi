@@ -2,6 +2,8 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { TemplateForm } from "./TemplateForm";
+import { TemplateEditForm } from "./TemplateEditForm";
+import { TemplateArchiveButton } from "./TemplateArchiveButton";
 
 export default async function TemplatesPage() {
   const { userId, email } = await requireUser();
@@ -12,6 +14,8 @@ export default async function TemplatesPage() {
     include: { pos: { orderBy: { urutan: "asc" } } },
     orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }],
   });
+  const activeTemplates = templates.filter((t) => !t.archivedAt);
+  const archivedTemplates = templates.filter((t) => t.archivedAt);
 
   return (
     <AppShell user={user || { email }} active="/templates">
@@ -23,10 +27,10 @@ export default async function TemplatesPage() {
       <TemplateForm />
 
       <div className="mt-6 space-y-4">
-        {templates.length === 0 ? (
+        {activeTemplates.length === 0 ? (
           <p style={{ color: "var(--text-muted)" }} className="text-[0.8rem]">Belum ada template.</p>
         ) : (
-          templates.map((t) => {
+          activeTemplates.map((t) => {
             const totalPersen = t.pos.reduce((s, p) => s + p.persentase, 0);
             return (
               <div key={t.id} className="card">
@@ -49,6 +53,23 @@ export default async function TemplatesPage() {
                       {totalPersen}%
                     </div>
                   </div>
+                </div>
+                <div className="mb-3 flex justify-end gap-2">
+                  <TemplateEditForm
+                    template={{
+                      id: t.id,
+                      nama: t.nama,
+                      catatan: t.catatan,
+                      isDefault: t.isDefault,
+                      pos: t.pos.map((p) => ({
+                        id: p.id,
+                        nama: p.nama,
+                        persentase: p.persentase,
+                        urutan: p.urutan,
+                      })),
+                    }}
+                  />
+                  <TemplateArchiveButton templateId={t.id} archived={false} />
                 </div>
                 <div className="overflow-hidden rounded-md border border-[var(--bg-border)]">
                   <table className="data-table">
@@ -75,6 +96,74 @@ export default async function TemplatesPage() {
           })
         )}
       </div>
+
+      {archivedTemplates.length > 0 && (
+        <details className="mt-6 card">
+          <summary className="cursor-pointer list-none font-semibold text-[0.85rem]" style={{ color: "var(--text-primary)" }}>
+            Arsip ({archivedTemplates.length})
+          </summary>
+          <div className="mt-4 space-y-4">
+            {archivedTemplates.map((t) => {
+              const totalPersen = t.pos.reduce((s, p) => s + p.persentase, 0);
+              return (
+                <div key={t.id} className="rounded-md border border-[var(--bg-border)] p-4" style={{ backgroundColor: "var(--bg-elevated)" }}>
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-[0.85rem] font-semibold" style={{ color: "var(--text-primary)" }}>
+                        {t.nama} <span className="badge-muted ml-1.5">ARSIP</span>
+                      </h3>
+                      {t.catatan && <p className="text-[0.75rem]" style={{ color: "var(--text-muted)" }}>{t.catatan}</p>}
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[0.65rem] uppercase font-semibold" style={{ color: "var(--text-muted)" }}>Total</div>
+                      <div className="text-[0.95rem] font-bold" style={{ color: totalPersen === 100 ? "var(--accent-green)" : "var(--accent-gold)" }}>
+                        {totalPersen}%
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mb-3 flex justify-end gap-2">
+                    <TemplateEditForm
+                      template={{
+                        id: t.id,
+                        nama: t.nama,
+                        catatan: t.catatan,
+                        isDefault: t.isDefault,
+                        pos: t.pos.map((p) => ({
+                          id: p.id,
+                          nama: p.nama,
+                          persentase: p.persentase,
+                          urutan: p.urutan,
+                        })),
+                      }}
+                    />
+                    <TemplateArchiveButton templateId={t.id} archived />
+                  </div>
+                  <div className="overflow-hidden rounded-md border border-[var(--bg-border)]">
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>Urutan</th>
+                          <th>Nama Pos</th>
+                          <th className="text-right">Persentase</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {t.pos.map((p) => (
+                          <tr key={p.id}>
+                            <td style={{ color: "var(--text-muted)" }}>{p.urutan}</td>
+                            <td style={{ color: "var(--text-primary)" }}>{p.nama}</td>
+                            <td className="text-right font-medium" style={{ color: "var(--text-primary)" }}>{p.persentase}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </details>
+      )}
     </AppShell>
   );
 }

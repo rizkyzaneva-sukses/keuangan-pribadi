@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { BayarZakatButton } from "./BayarZakatButton";
+import type { Prisma } from "@prisma/client";
 
 export default async function ZakatPage({
   searchParams,
@@ -13,17 +14,19 @@ export default async function ZakatPage({
   const { userId, email } = await requireUser();
   const user = await db.user.findUnique({ where: { id: userId }, select: { nama: true, email: true } });
 
-  const where: any = { userId };
+  const where: Prisma.ZakatWhereInput = { userId };
   if (sp.status === "BELUM" || sp.status === "SEBAGIAN" || sp.status === "SUDAH") where.status = sp.status;
-  if (sp.sumber) where.sumber = sp.sumber;
+  if (sp.sumber === "DEVIDEN" || sp.sumber === "MUROBAHAH" || sp.sumber === "BISNIS") {
+    where.sumber = sp.sumber;
+  }
   if (sp.tahun) where.tahun = Number(sp.tahun);
 
   const [zakat, aggBelum, aggSebagian, aggSudah] = await Promise.all([
     db.zakat.findMany({
       where,
-      orderBy: { tanggalWajib: "desc" },
+      orderBy: [{ tanggalWajib: "desc" }, { id: "desc" }],
       take: 100,
-      include: { pembayaran: { orderBy: { tanggal: "desc" } } },
+      include: { pembayaran: { orderBy: [{ tanggal: "desc" }, { id: "desc" }] } },
     }),
     db.zakat.aggregate({ where: { userId, status: "BELUM" }, _sum: { jumlah: true }, _count: true }),
     db.zakat.aggregate({ where: { userId, status: "SEBAGIAN" }, _sum: { jumlah: true, sudahDibayar: true }, _count: true }),

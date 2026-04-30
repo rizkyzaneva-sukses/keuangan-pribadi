@@ -169,6 +169,7 @@ model TemplateAlokasi {
   nama       String
   catatan    String?
   isDefault  Boolean  @default(false)
+  archivedAt DateTime?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -176,9 +177,13 @@ model TemplateAlokasi {
   pos         PosAlokasi[]
   assignment  TemplateAssignment[]
   alokasiLog  AlokasiLog[]
+  investasiTeman InvestasiTeman[]
+  murobahah   Murobahah[]
+  deviden     Deviden[]
+  imbalHasilDiterima ImbalHasilDiterima[]
 
-  @@unique([userId, isDefault])
   @@index([userId, isDefault])
+  @@index([userId, archivedAt])
 }
 
 model PosAlokasi {
@@ -245,17 +250,23 @@ model WalletPos {
 
 model AlokasiLog {
   id         Int      @id @default(autoincrement())
-  trxId      Int
+  trxId      Int?
+  devidenId  Int?
+  imbalHasilDiterimaId Int?
   posId      Int
   templateId Int
   nominal    Int
   createdAt  DateTime @default(now())
 
-  trx      TrxInvestasi    @relation(fields: [trxId], references: [id], onDelete: Cascade)
-  pos      PosAlokasi      @relation(fields: [posId], references: [id], onDelete: Restrict)
-  template TemplateAlokasi @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  trx      TrxInvestasi?    @relation(fields: [trxId], references: [id], onDelete: Cascade)
+  deviden  Deviden?         @relation(fields: [devidenId], references: [id], onDelete: Cascade)
+  imbalHasilDiterima ImbalHasilDiterima? @relation(fields: [imbalHasilDiterimaId], references: [id], onDelete: Cascade)
+  pos      PosAlokasi       @relation(fields: [posId], references: [id], onDelete: Restrict)
+  template TemplateAlokasi  @relation(fields: [templateId], references: [id], onDelete: Restrict)
 
   @@index([trxId])
+  @@index([devidenId])
+  @@index([imbalHasilDiterimaId])
   @@index([posId])
 }
 
@@ -279,6 +290,7 @@ model Penarikan {
 model InvestasiTeman {
   id          Int                  @id @default(autoincrement())
   userId      Int
+  templateId  Int?
   namaTeman   String
   modal       Int
   tanggalMulai DateTime
@@ -287,31 +299,39 @@ model InvestasiTeman {
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
 
-  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  deviden Deviden[]
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template  TemplateAlokasi? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  deviden   Deviden[]
 
   @@index([userId, status])
+  @@index([templateId])
 }
 
 model Deviden {
   id               Int      @id @default(autoincrement())
   userId           Int
   investasiTemanId Int
+  templateId       Int?
   tanggal          DateTime
   jumlah           Int
+  sudahDialokasikan Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   investasiTeman InvestasiTeman @relation(fields: [investasiTemanId], references: [id], onDelete: Cascade)
+  template       TemplateAlokasi? @relation(fields: [templateId], references: [id], onDelete: SetNull)
   zakat          Zakat[]
+  alokasiLog     AlokasiLog[]
 
   @@index([investasiTemanId, tanggal])
+  @@index([templateId])
 }
 
 model Murobahah {
   id              Int              @id @default(autoincrement())
   userId          Int
+  templateId      Int?
   namaPartner     String
   pokok           Int
   totalImbalHasil Int
@@ -323,25 +343,33 @@ model Murobahah {
   updatedAt       DateTime         @updatedAt
 
   user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template         TemplateAlokasi?   @relation(fields: [templateId], references: [id], onDelete: SetNull)
   imbalHasilDiterima ImbalHasilDiterima[]
 
   @@index([userId, status])
+  @@index([templateId])
 }
 
 model ImbalHasilDiterima {
   id          Int      @id @default(autoincrement())
   userId      Int
   murobahahId Int
+  templateId  Int?
   tanggal     DateTime
+  pokokDiterima Int    @default(0)
   jumlah      Int
+  sudahDialokasikan Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   murobahah Murobahah @relation(fields: [murobahahId], references: [id], onDelete: Cascade)
+  template  TemplateAlokasi? @relation(fields: [templateId], references: [id], onDelete: SetNull)
   zakat     Zakat[]
+  alokasiLog AlokasiLog[]
 
   @@index([murobahahId, tanggal])
+  @@index([templateId])
 }
 
 model InvestasiBisnis {

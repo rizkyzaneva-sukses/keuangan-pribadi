@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
-import { TemanForm, DevidenForm } from "./Forms";
+import { TemanEditForm, TemanForm, DevidenForm } from "./Forms";
 
 export default async function TemanPage({
   searchParams,
@@ -14,14 +14,23 @@ export default async function TemanPage({
   const { userId, email } = await requireUser();
   const user = await db.user.findUnique({ where: { id: userId }, select: { nama: true, email: true } });
 
-  const teman = await db.investasiTeman.findMany({
-    where: { 
-      userId,
-      ...(q ? { namaTeman: { contains: q } } : {})
-    },
-    include: { deviden: { orderBy: { tanggal: "desc" } } },
-    orderBy: { createdAt: "desc" },
-  });
+  const [teman, templates] = await Promise.all([
+    db.investasiTeman.findMany({
+      where: { 
+        userId,
+        ...(q ? { namaTeman: { contains: q } } : {})
+      },
+      include: {
+        deviden: { orderBy: { tanggal: "desc" } },
+        template: true,
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    db.templateAlokasi.findMany({
+      where: { userId },
+      orderBy: [{ archivedAt: "asc" }, { isDefault: "desc" }, { createdAt: "asc" }],
+    }),
+  ]);
 
   return (
     <AppShell user={user || { email }} active="/teman">
@@ -33,7 +42,7 @@ export default async function TemanPage({
       </p>
 
       <div className="flex flex-col md:flex-row gap-3 items-start md:items-center justify-between">
-        <TemanForm />
+        <TemanForm templates={templates} />
         
         <form method="GET" className="flex items-center gap-2 w-full md:w-auto">
           <input 
@@ -65,6 +74,22 @@ export default async function TemanPage({
                       </span>
                     </p>
                     {t.catatan && <p className="mt-0.5 text-[0.75rem]" style={{ color: "var(--text-secondary)" }}>{t.catatan}</p>}
+                    <div className="mt-1 flex items-center gap-2 flex-wrap">
+                      <p className="text-[0.7rem]" style={{ color: "var(--text-muted)" }}>
+                        Template: {t.template?.nama ?? "Default"}
+                      </p>
+                      <TemanEditForm
+                        investasiTemanId={t.id}
+                        initial={{
+                          namaTeman: t.namaTeman,
+                          modal: t.modal,
+                          tanggalMulai: t.tanggalMulai.toISOString().slice(0, 10),
+                          catatan: t.catatan ?? "",
+                          templateId: t.template?.id ?? null,
+                        }}
+                        templates={templates}
+                      />
+                    </div>
                   </div>
                   <div className="text-right">
                     <div className="section-title !mb-0.5">Modal</div>

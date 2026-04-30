@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { PencilLine } from "lucide-react";
 
 const TIPE = ["BISNIS", "TEMAN", "MUROBAHAH"] as const;
 
@@ -72,7 +73,7 @@ export function InvestasiForm({ templates }: { templates: { id: number; nama: st
         />
         <select
           value={tipe}
-          onChange={(e) => setTipe(e.target.value as any)}
+          onChange={(e) => setTipe(e.target.value as (typeof TIPE)[number])}
           className="form-input"
         >
           {TIPE.map((t) => (
@@ -131,6 +132,159 @@ const KAT_IN = [
   "IN_OTHER",
 ] as const;
 const KAT_OUT = ["OUT_BUSINESS_CAPITAL", "OUT_TOPUP_CAPITAL", "OUT_OTHER"] as const;
+
+export function InvestasiEditForm({
+  investasiId,
+  initial,
+  templates,
+}: {
+  investasiId: number;
+  initial: {
+    nama: string;
+    partner: string;
+    tipe: (typeof TIPE)[number];
+    catatan: string;
+    templateId: number | null;
+  };
+  templates: { id: number; nama: string }[];
+}) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [nama, setNama] = useState(initial.nama);
+  const [partner, setPartner] = useState(initial.partner);
+  const [tipe, setTipe] = useState<(typeof TIPE)[number]>(initial.tipe);
+  const [catatan, setCatatan] = useState(initial.catatan);
+  const [templateId, setTemplateId] = useState<number | "">(initial.templateId ?? "");
+  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  const submit = () => {
+    setError("");
+    startTransition(async () => {
+      const res = await fetch(`/api/investasi/${investasiId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nama,
+          partner,
+          tipe,
+          catatan,
+          templateId: templateId === "" ? null : templateId,
+        }),
+      });
+      if (!res.ok) {
+        setError(await res.text());
+        return;
+      }
+      setOpen(false);
+      router.refresh();
+    });
+  };
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[0.7rem] font-medium transition-colors"
+        style={{
+          borderColor: "var(--bg-border)",
+          color: "var(--text-muted)",
+          backgroundColor: "transparent",
+        }}
+        title="Edit investasi dan assign template"
+      >
+        <PencilLine className="h-3 w-3" />
+        Edit
+      </button>
+    );
+  }
+
+  return (
+    <div
+      className="mt-3 rounded-md p-3 text-[0.8rem]"
+      style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--bg-border)" }}
+    >
+      <div className="mb-3 flex items-center justify-between">
+        <div className="font-semibold" style={{ color: "var(--text-primary)" }}>
+          Edit Investasi
+        </div>
+        <button
+          onClick={() => setOpen(false)}
+          className="text-[0.75rem]"
+          style={{ color: "var(--text-muted)" }}
+        >
+          ✕ Tutup
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
+        <input
+          value={nama}
+          onChange={(e) => setNama(e.target.value)}
+          placeholder="Nama investasi *"
+          className="form-input md:col-span-2"
+        />
+        <input
+          value={partner}
+          onChange={(e) => setPartner(e.target.value)}
+          placeholder="Partner (opsional)"
+          className="form-input"
+        />
+        <select
+          value={tipe}
+          onChange={(e) => setTipe(e.target.value as (typeof TIPE)[number])}
+          className="form-input"
+        >
+          {TIPE.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
+        <select
+          value={templateId}
+          onChange={(e) => setTemplateId(e.target.value === "" ? "" : Number(e.target.value))}
+          className="form-input md:col-span-2"
+        >
+          <option value="">— Pakai template default —</option>
+          {templates.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.nama}
+            </option>
+          ))}
+        </select>
+        <input
+          value={catatan}
+          onChange={(e) => setCatatan(e.target.value)}
+          placeholder="Catatan (opsional)"
+          className="form-input md:col-span-2"
+        />
+      </div>
+
+      {error && (
+        <p className="mt-2 text-[0.75rem]" style={{ color: "var(--accent-red)" }}>
+          {error}
+        </p>
+      )}
+
+      <div className="mt-3 flex gap-2">
+        <button
+          onClick={submit}
+          disabled={isPending}
+          className="btn-primary px-3 py-1.5 text-[0.8rem] font-medium disabled:opacity-50"
+        >
+          {isPending ? "Menyimpan..." : "Simpan"}
+        </button>
+        <button
+          onClick={() => setOpen(false)}
+          className="btn-ghost px-3 py-1.5 text-[0.8rem]"
+        >
+          Batal
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function TrxForm({ investasiId }: { investasiId: number }) {
   const router = useRouter();

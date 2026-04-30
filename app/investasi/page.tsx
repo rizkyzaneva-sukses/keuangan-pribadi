@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
-import { InvestasiForm, TrxForm } from "./Forms";
+import { InvestasiEditForm, InvestasiForm, TrxForm } from "./Forms";
 import { OverrideForm } from "./OverrideForm";
 
 export default async function InvestasiPage({
@@ -62,6 +62,7 @@ export default async function InvestasiPage({
   }, 0);
 
   const aktifCount = investasi.filter((i) => i.status === "ACTIVE").length;
+  const defaultTemplate = templates.find((t) => t.isDefault);
 
   return (
     <AppShell user={user || { email }} active="/investasi">
@@ -147,17 +148,29 @@ export default async function InvestasiPage({
                         Partner: {inv.partner}
                       </p>
                     )}
-                    {inv.templateAssignment && (
-                      <div className="flex items-center gap-2 flex-wrap mt-0.5">
-                        <p className="text-[0.7rem]" style={{ color: "var(--text-muted)" }}>
-                          Template: {inv.templateAssignment.template.nama}
-                        </p>
-                        <OverrideForm
-                          investasiId={inv.id}
-                          investasiNama={inv.nama}
-                        />
-                      </div>
-                    )}
+                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                      <p className="text-[0.7rem]" style={{ color: "var(--text-muted)" }}>
+                        Template: {inv.templateAssignment?.template.nama ?? defaultTemplate?.nama ?? "Belum assign"}
+                      </p>
+                      {!inv.templateAssignment && defaultTemplate && (
+                        <span className="badge-green">DEFAULT</span>
+                      )}
+                      <InvestasiEditForm
+                        investasiId={inv.id}
+                        initial={{
+                          nama: inv.nama,
+                          partner: inv.partner ?? "",
+                          tipe: inv.tipe,
+                          catatan: inv.catatan ?? "",
+                          templateId: inv.templateAssignment?.template.id ?? null,
+                        }}
+                        templates={templates.map((t) => ({ id: t.id, nama: t.nama }))}
+                      />
+                      <OverrideForm
+                        investasiId={inv.id}
+                        investasiNama={inv.nama}
+                      />
+                    </div>
                   </div>
 
                   {/* Stats */}
