@@ -359,7 +359,7 @@ export function ImbalHasilForm({ murobahahId }: { murobahahId: number }) {
         </button>
       </div>
       <p className="mt-2 text-[0.72rem]" style={{ color: "var(--text-muted)" }}>
-        Pokok yang kembali dicatat terpisah. Zakat hanya dihitung dari kolom imbal diterima.
+        Pokok yang kembali dicatat terpisah. Zakat dihitung dari kolom imbal diterima dan hanya 97.5% imbal yang dialokasikan ke pos.
       </p>
       {error && <p className="mt-1.5 text-[0.75rem]" style={{ color: "var(--accent-red)" }}>{error}</p>}
     </div>

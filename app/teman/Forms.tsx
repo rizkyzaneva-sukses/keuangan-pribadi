@@ -288,6 +288,9 @@ export function DevidenForm({ investasiTemanId }: { investasiTemanId: number }) 
           ✕
         </button>
       </div>
+      <p className="mt-2 text-[0.72rem]" style={{ color: "var(--text-muted)" }}>
+        Deviden yang dialokasikan ke pos adalah 97.5% setelah dipotong zakat 2.5%.
+      </p>
       {error && <p className="mt-1.5 text-[0.75rem]" style={{ color: "var(--accent-red)" }}>{error}</p>}
     </div>
   );

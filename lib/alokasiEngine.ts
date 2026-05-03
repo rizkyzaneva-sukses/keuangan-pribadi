@@ -205,9 +205,12 @@ export async function runAlokasiDeviden(devidenId: number) {
   if (!deviden) return;
   if (deviden.jumlah <= 0) return;
 
+  const zakatDeduction = Math.round(deviden.jumlah * 0.025);
+  const amountToAllocate = deviden.jumlah - zakatDeduction;
+
   const allocated = await allocateToTemplate({
     userId: deviden.userId,
-    amount: deviden.jumlah,
+    amount: amountToAllocate,
     templateId: deviden.templateId ?? deviden.investasiTeman.templateId,
     posOverrideKey: "devidenId",
     sourceId: deviden.id,
@@ -246,9 +249,12 @@ export async function runAlokasiImbalHasil(imbalHasilDiterimaId: number) {
   if (!imbal) return;
   if (imbal.jumlah <= 0) return;
 
+  const zakatDeduction = Math.round(imbal.jumlah * 0.025);
+  const amountToAllocate = imbal.jumlah - zakatDeduction;
+
   const allocated = await allocateToTemplate({
     userId: imbal.userId,
-    amount: imbal.jumlah,
+    amount: amountToAllocate,
     templateId: imbal.templateId ?? imbal.murobahah.templateId,
     posOverrideKey: "imbalHasilDiterimaId",
     sourceId: imbal.id,
