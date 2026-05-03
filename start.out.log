@@ -1,0 +1,49 @@
+▲ Next.js 16.2.4
+- Local:         http://localhost:3000
+- Network:       http://0.0.0.0:3000
+✓ Ready in 0ms
+prisma:error 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+prisma:error 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+prisma:error 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+prisma:error 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+prisma:error 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+prisma:error 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+prisma:error 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+prisma:error 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+prisma:error 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.

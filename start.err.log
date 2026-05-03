@@ -1,0 +1,181 @@
+=file:D:/APP/keuangan-pribadi/dev.db : The term '=file:D:/APP/keuangan-pribadi/dev.db' is not recognized as the name 
+of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, 
+verify that the path is correct and try again.
+At line:1 char:1
++ ='file:D:/APP/keuangan-pribadi/dev.db'; Set-Location 'D:\APP\keuangan ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (=file:D:/APP/keuangan-pribadi/dev.db:String) [], CommandNotFoundExcepti 
+   on
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+Login error: Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+    at async $ (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\[root-of-the-server]__0n7kf24._.js:1:19276)
+    at async r (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\[root-of-the-server]__0n7kf24._.js:1:22939) {
+  code: 'P2021',
+  meta: {
+    modelName: 'User',
+    driverAdapterError: Error [DriverAdapterError]: TableDoesNotExist
+        at S.onError (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\_01cuoe3._.js:1:15166)
+        at S.performIO (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\_01cuoe3._.js:1:15107)
+        at S.queryRaw (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\_01cuoe3._.js:1:12470) {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.8.0'
+}
+Login error: Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+    at async $ (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\[root-of-the-server]__0n7kf24._.js:1:19276)
+    at async r (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\[root-of-the-server]__0n7kf24._.js:1:22939) {
+  code: 'P2021',
+  meta: {
+    modelName: 'User',
+    driverAdapterError: Error [DriverAdapterError]: TableDoesNotExist
+        at S.onError (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\_01cuoe3._.js:1:15166)
+        at S.performIO (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\_01cuoe3._.js:1:15107)
+        at S.queryRaw (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\_01cuoe3._.js:1:12470) {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.8.0'
+}
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+    at async h (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\[root-of-the-server]__12mkezg._.js:1:3963) {
+  code: 'P2021',
+  meta: {
+    modelName: 'User',
+    driverAdapterError: Error [DriverAdapterError]: TableDoesNotExist
+        at E.onError (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40173)
+        at E.performIO (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40114)
+        at E.queryRaw (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:37477) {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.8.0',
+  digest: '877151449'
+}
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+    at async h (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\[root-of-the-server]__12mkezg._.js:1:3963) {
+  code: 'P2021',
+  meta: {
+    modelName: 'User',
+    driverAdapterError: Error [DriverAdapterError]: TableDoesNotExist
+        at E.onError (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40173)
+        at E.performIO (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40114)
+        at E.queryRaw (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:37477) {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.8.0',
+  digest: '877151449'
+}
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+    at async h (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\[root-of-the-server]__12mkezg._.js:1:3963) {
+  code: 'P2021',
+  meta: {
+    modelName: 'User',
+    driverAdapterError: Error [DriverAdapterError]: TableDoesNotExist
+        at E.onError (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40173)
+        at E.performIO (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40114)
+        at E.queryRaw (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:37477) {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.8.0',
+  digest: '877151449'
+}
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+    at async h (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\[root-of-the-server]__12mkezg._.js:1:3963) {
+  code: 'P2021',
+  meta: {
+    modelName: 'User',
+    driverAdapterError: Error [DriverAdapterError]: TableDoesNotExist
+        at E.onError (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40173)
+        at E.performIO (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40114)
+        at E.queryRaw (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:37477) {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.8.0',
+  digest: '877151449'
+}
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+    at async h (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\[root-of-the-server]__12mkezg._.js:1:3963) {
+  code: 'P2021',
+  meta: {
+    modelName: 'User',
+    driverAdapterError: Error [DriverAdapterError]: TableDoesNotExist
+        at E.onError (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40173)
+        at E.performIO (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40114)
+        at E.queryRaw (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:37477) {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.8.0',
+  digest: '877151449'
+}
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+    at async h (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\[root-of-the-server]__12mkezg._.js:1:3963) {
+  code: 'P2021',
+  meta: {
+    modelName: 'User',
+    driverAdapterError: Error [DriverAdapterError]: TableDoesNotExist
+        at E.onError (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40173)
+        at E.performIO (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40114)
+        at E.queryRaw (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:37477) {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.8.0',
+  digest: '877151449'
+}
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+The table `main.User` does not exist in the current database.
+    at async h (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\[root-of-the-server]__12mkezg._.js:1:3963) {
+  code: 'P2021',
+  meta: {
+    modelName: 'User',
+    driverAdapterError: Error [DriverAdapterError]: TableDoesNotExist
+        at E.onError (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40173)
+        at E.performIO (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:40114)
+        at E.queryRaw (D:\APP\keuangan-pribadi\.next\standalone\.next\server\chunks\ssr\_0daumsg._.js:1:37477) {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.8.0',
+  digest: '877151449'
+}
