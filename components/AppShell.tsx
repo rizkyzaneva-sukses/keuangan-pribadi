@@ -5,7 +5,8 @@ import { ReactNode, useState, useEffect } from "react";
 import { 
   LayoutDashboard, Wallet, PiggyBank, FileStack, 
   TrendingUp, Users, HandHeart, Coins,
-  LogOut, Menu, ChevronLeft, ChevronRight, BookOpen
+  LogOut, Menu, ChevronLeft, ChevronRight, BookOpen, DatabaseBackup,
+  type LucideIcon,
 } from "lucide-react";
 export { formatRupiah, formatTanggal } from "@/lib/format";
 
@@ -24,6 +25,7 @@ const NAV_INVESTASI = [
 
 const NAV_LAINNYA = [
   { href: "/zakat", label: "Zakat", icon: Coins },
+  { href: "/import-lama", label: "Import Lama", icon: DatabaseBackup },
   { href: "/panduan", label: "Panduan", icon: BookOpen },
 ];
 
@@ -36,12 +38,19 @@ export function AppShell({
   user: { nama?: string | null; email: string };
   active: string;
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.innerWidth >= 768 &&
+      window.innerWidth < 1024,
+  );
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
+    const frame = window.requestAnimationFrame(() => {
+      setIsMounted(true);
+    });
     // Auto-collapse on smaller desktop screens
     const handleResize = () => {
       if (window.innerWidth >= 768 && window.innerWidth < 1024) {
@@ -50,12 +59,14 @@ export function AppShell({
         setIsCollapsed(false);
       }
     };
-    handleResize();
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
-  const NavItem = ({ n }: { n: { href: string; label: string; icon: any } }) => {
+  const NavItem = ({ n }: { n: { href: string; label: string; icon: LucideIcon } }) => {
     const isActive = active === n.href;
     const Icon = n.icon;
     return (
@@ -197,5 +208,3 @@ export function AppShell({
     </div>
   );
 }
-
-

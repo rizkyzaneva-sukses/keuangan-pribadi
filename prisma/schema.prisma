@@ -84,6 +84,7 @@ model User {
   deviden            Deviden[]
   imbalHasilDiterima ImbalHasilDiterima[]
   nilaiAktiva        NilaiAktiva[]
+  legacyImportItems  LegacyImportItem[]
 }
 
 model KategoriKas {
@@ -447,4 +448,25 @@ model PembayaranZakat {
 
   @@index([zakatId])
   @@index([userId, tanggal])
+}
+
+model LegacyImportItem {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  section        String
+  legacyId       String
+  targetType     String?
+  targetId       Int?
+  title          String?
+  subtitle       String?
+  payloadJson    String
+  legacyCreatedAt DateTime?
+  legacyUpdatedAt DateTime?
+  importedAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, section, legacyId])
+  @@index([userId, section])
+  @@index([userId, importedAt])
 }
