@@ -22,6 +22,7 @@ interface BayarZakatButtonProps {
 export function BayarZakatButton({ id, jumlah, sudahDibayar, status, pembayaran }: BayarZakatButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isLunasPending, startLunasTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [showRiwayat, setShowRiwayat] = useState(false);
   const [jumlahBayar, setJumlahBayar] = useState("");
@@ -51,6 +52,28 @@ export function BayarZakatButton({ id, jumlah, sudahDibayar, status, pembayaran 
       setOpen(false);
       setJumlahBayar("");
       setKeterangan("");
+      router.refresh();
+    });
+  };
+
+  const bayarLunas = () => {
+    if (sisa <= 0) return;
+    if (!confirm(`Langsung lunasi sisa zakat sebesar ${formatRupiah(sisa)}?`)) return;
+
+    startLunasTransition(async () => {
+      const res = await fetch(`/api/zakat/${id}/bayar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          jumlah: sisa, 
+          tanggal: new Date().toISOString().slice(0, 10), 
+          keterangan: "Lunas (langsung)" 
+        }),
+      });
+      if (!res.ok) {
+        alert(await res.text());
+        return;
+      }
       router.refresh();
     });
   };
@@ -92,7 +115,7 @@ export function BayarZakatButton({ id, jumlah, sudahDibayar, status, pembayaran 
         )}
 
         {/* Tombol */}
-        <div style={{ display: "flex", gap: "0.25rem" }}>
+        <div style={{ display: "flex", gap: "0.25rem", alignItems: "center" }}>
           {pembayaran.length > 0 && (
             <button
               onClick={() => setShowRiwayat(true)}
@@ -104,14 +127,25 @@ export function BayarZakatButton({ id, jumlah, sudahDibayar, status, pembayaran 
             </button>
           )}
           {status !== "SUDAH" && (
-            <button
-              onClick={() => setOpen(true)}
-              disabled={isPending}
-              className="btn-primary px-2.5 py-1"
-              style={{ fontSize: "0.7rem", fontWeight: 500 }}
-            >
-              {isPending ? "..." : status === "SEBAGIAN" ? "Bayar Lagi" : "Bayar"}
-            </button>
+            <>
+              <button
+                onClick={bayarLunas}
+                disabled={isPending || isLunasPending}
+                className="btn-ghost px-2 py-1"
+                style={{ fontSize: "0.9rem", color: "var(--accent-green)", padding: "0 0.5rem" }}
+                title="Sekali klik lunas"
+              >
+                {isLunasPending ? "..." : "✓"}
+              </button>
+              <button
+                onClick={() => setOpen(true)}
+                disabled={isPending || isLunasPending}
+                className="btn-primary px-2.5 py-1"
+                style={{ fontSize: "0.7rem", fontWeight: 500 }}
+              >
+                {isPending ? "..." : status === "SEBAGIAN" ? "Bayar Lagi" : "Bayar"}
+              </button>
+            </>
           )}
         </div>
       </div>
