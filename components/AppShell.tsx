@@ -8,7 +8,7 @@ import {
   LogOut, Menu, ChevronLeft, ChevronRight, BookOpen, DatabaseBackup,
   type LucideIcon,
 } from "lucide-react";
-export { formatRupiah, formatTanggal } from "@/lib/format";
+// formatRupiah & formatTanggal sudah di @/lib/format — import langsung dari sana
 
 const NAV_KEUANGAN = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -94,12 +94,13 @@ export function AppShell({
     );
   };
 
-  if (!isMounted) return null; // Prevent hydration mismatch
-
   const sidebarWidth = isCollapsed ? "w-16" : "w-56";
 
+  // Prevent hydration mismatch: render always, hide with CSS until mounted
+  const visibilityClass = isMounted ? "" : "invisible";
+
   return (
-    <div className="flex min-h-screen w-full bg-[var(--bg-base)]">
+    <div className={`flex min-h-screen w-full bg-[var(--bg-base)] ${visibilityClass}`}>
       {/* Mobile Overlay */}
       {isMobileOpen && (
         <div 

@@ -5,16 +5,5 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatRupiah(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(value);
-}
-
-export function formatTanggal(d: Date | string) {
-  return new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(
-    new Date(d)
-  );
-}
+// formatRupiah & formatTanggal sudah dipindah ke @/lib/format
+// Import dari sana: import { formatRupiah, formatTanggal } from "@/lib/format";

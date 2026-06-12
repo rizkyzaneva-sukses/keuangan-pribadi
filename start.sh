@@ -1,12 +1,15 @@
 #!/bin/sh
 set -e
 
-# Pastikan provider di schema adalah postgresql (sudah diubah saat build)
-# Gunakan db push karena migrate deploy butuh file migrasi spesifik Postgres
-node ./node_modules/prisma/build/index.js db push --accept-data-loss
+# Production startup: jalankan migrations, lalu seed (idempotent), lalu server
+# Menggunakan migrate deploy (bukan db push) untuk safety production
+node ./node_modules/prisma/build/index.js migrate deploy 2>/dev/null || {
+  echo "⚠️ migrate deploy gagal, fallback ke db push..."
+  node ./node_modules/prisma/build/index.js db push --accept-data-loss
+}
 
-# Seed data awal (user default, kategori, template) — skip jika sudah ada
+# Seed data awal (idempotent — skip jika user sudah ada)
 node ./node_modules/.bin/tsx prisma/seed.ts
 
 # Jalankan server Next.js standalone
-node server.js
+exec node server.js
