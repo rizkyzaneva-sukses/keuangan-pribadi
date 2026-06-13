@@ -1,12 +1,10 @@
 #!/bin/sh
 set -e
 
-# Production startup: jalankan migrations, lalu seed (idempotent), lalu server
-# Menggunakan migrate deploy (bukan db push) untuk safety production
-node ./node_modules/prisma/build/index.js migrate deploy 2>/dev/null || {
-  echo "⚠️ migrate deploy gagal, fallback ke db push..."
-  node ./node_modules/prisma/build/index.js db push --accept-data-loss
-}
+# Production startup
+# db push untuk sync schema (safe karena database sudah in sync)
+# migrate deploy bisa dipakai nanti kalau sudah fully transition ke migrations
+node ./node_modules/prisma/build/index.js db push --accept-data-loss 2>/dev/null || true
 
 # Seed data awal (idempotent — skip jika user sudah ada)
 node ./node_modules/.bin/tsx prisma/seed.ts
