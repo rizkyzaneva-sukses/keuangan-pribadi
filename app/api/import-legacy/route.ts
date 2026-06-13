@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import type { LegacyBackup } from "@/lib/legacyBackup";
