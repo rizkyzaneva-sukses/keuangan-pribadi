@@ -25,6 +25,7 @@ const NAV_INVESTASI = [
 
 const NAV_LAINNYA = [
   { href: "/zakat", label: "Zakat", icon: Coins },
+  { href: "/laporan", label: "Laporan", icon: FileStack },
   { href: "/import-lama", label: "Import Lama", icon: DatabaseBackup },
   { href: "/panduan", label: "Panduan", icon: BookOpen },
 ];

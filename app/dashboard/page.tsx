@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah } from "@/lib/format";
+import { KasTrendChart, WalletDistributionChart } from "@/components/Charts";
 
 export default async function DashboardPage() {
   const { userId, email } = await requireUser();
@@ -12,7 +13,11 @@ export default async function DashboardPage() {
     select: { nama: true, email: true },
   });
 
-  const [walletPos, totalKas, totalInvestasi, pendingZakatList] = await Promise.all([
+  // Hitung 6 bulan terakhir untuk chart
+  const now = new Date();
+  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+
+  const [walletPos, totalKas, totalInvestasi, pendingZakatList, kasMonthly] = await Promise.all([
     db.walletPos.findMany({
       where: { userId },
       include: { pos: true },
@@ -27,18 +32,64 @@ export default async function DashboardPage() {
       where: { userId, status: { in: ["BELUM", "SEBAGIAN"] } },
       select: { sumber: true, jumlah: true, sudahDibayar: true },
     }),
+    db.kas.findMany({
+      where: {
+        userId,
+        tanggal: { gte: sixMonthsAgo },
+      },
+      select: { tanggal: true, jenis: true, jumlah: true },
+      orderBy: { tanggal: "asc" },
+    }),
   ]);
 
   const totalSaldoWallet = walletPos.reduce((sum, w) => sum + w.saldoSaatIni, 0);
-  
+
   // Zakat calculations
   const totalSisaZakat = pendingZakatList.reduce((acc, z) => acc + (z.jumlah - z.sudahDibayar), 0);
-  
+
   const zakatMurobahahItems = pendingZakatList.filter(z => z.sumber === "MUROBAHAH");
   const sisaMurobahah = zakatMurobahahItems.reduce((acc, z) => acc + (z.jumlah - z.sudahDibayar), 0);
-  
+
   const zakatDevidenItems = pendingZakatList.filter(z => z.sumber === "DEVIDEN");
   const sisaDeviden = zakatDevidenItems.reduce((acc, z) => acc + (z.jumlah - z.sudahDibayar), 0);
+
+  // Aggregate kas per bulan untuk chart
+  const monthlyMap = new Map<string, { masuk: number; keluar: number }>();
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    monthlyMap.set(key, { masuk: 0, keluar: 0 });
+  }
+
+  for (const k of kasMonthly) {
+    const d = new Date(k.tanggal);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const existing = monthlyMap.get(key);
+    if (existing) {
+      if (k.jenis === "MASUK") existing.masuk += k.jumlah;
+      else existing.keluar += k.jumlah;
+    }
+  }
+
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+  const chartData = Array.from(monthlyMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, val]) => {
+      const [y, m] = key.split("-");
+      return {
+        month: `${monthNames[Number(m) - 1]} ${y.slice(2)}`,
+        masuk: val.masuk,
+        keluar: val.keluar,
+      };
+    });
+
+  // Data untuk wallet distribution chart
+  const walletChartData = walletPos
+    .filter((w) => w.saldoSaatIni > 0)
+    .map((w) => ({
+      nama: w.pos.nama,
+      saldo: w.saldoSaatIni,
+    }));
 
   return (
     <AppShell user={user || { email }} active="/dashboard">
@@ -54,6 +105,12 @@ export default async function DashboardPage() {
         <Card label="Zakat Belum Dibayar" value={formatRupiah(totalSisaZakat)} isCurrency valueNumber={totalSisaZakat} isZakat />
       </div>
 
+      {/* Charts Section */}
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <KasTrendChart data={chartData} />
+        <WalletDistributionChart data={walletChartData} />
+      </div>
+
       {/* Zakat 2.5% Widget */}
       <section className="mt-6 card">
         <div className="flex justify-between items-center mb-3">
@@ -64,7 +121,7 @@ export default async function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Murobahah */}
-          <Link href="/zakat?sumber=MUROBAHAH" 
+          <Link href="/zakat?sumber=MUROBAHAH"
             className="flex flex-col rounded-lg p-3 transition-colors hover:border-[var(--accent-gold)]"
             style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--bg-border)" }}>
             <div className="text-[0.75rem] font-medium text-[var(--text-secondary)] mb-1 uppercase">Murobahah</div>
@@ -77,7 +134,7 @@ export default async function DashboardPage() {
           </Link>
 
           {/* Deviden / Investasi Teman */}
-          <Link href="/zakat?sumber=DEVIDEN" 
+          <Link href="/zakat?sumber=DEVIDEN"
             className="flex flex-col rounded-lg p-3 transition-colors hover:border-[var(--accent-gold)]"
             style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--bg-border)" }}>
             <div className="text-[0.75rem] font-medium text-[var(--text-secondary)] mb-1 uppercase">Deviden (Investasi Teman)</div>
