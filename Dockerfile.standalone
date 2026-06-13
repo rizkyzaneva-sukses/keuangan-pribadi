@@ -1,0 +1,19 @@
+FROM node:22-alpine
+WORKDIR /app
+# Copy pre-built standalone output
+COPY .next/standalone/ ./
+COPY .next/static ./.next/static
+COPY public ./public
+COPY prisma ./prisma
+COPY prisma.config.ts ./prisma.config.ts
+COPY lib ./lib
+COPY start.sh ./start.sh
+# Install only prisma CLI (minimal)
+RUN npm config set registry https://registry.npmjs.org/
+RUN npm install prisma @prisma/client --no-save 2>&1 || true
+RUN chmod +x ./start.sh
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+ENV NODE_ENV=production
+CMD ["./start.sh"]
