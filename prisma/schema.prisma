@@ -61,6 +61,17 @@ enum StatusZakat {
   SUDAH
 }
 
+enum JenisUtangPiutang {
+  UTANG
+  PIUTANG
+}
+
+enum StatusUtangPiutang {
+  BELUM
+  SEBAGIAN
+  LUNAS
+}
+
 model User {
   id           Int       @id @default(autoincrement())
   email        String    @unique
@@ -85,6 +96,8 @@ model User {
   imbalHasilDiterima ImbalHasilDiterima[]
   nilaiAktiva        NilaiAktiva[]
   legacyImportItems  LegacyImportItem[]
+  utangPiutang       UtangPiutang[]
+  pembayaranUtangPiutang PembayaranUtangPiutang[]
 }
 
 model KategoriKas {
@@ -469,4 +482,42 @@ model LegacyImportItem {
   @@unique([userId, section, legacyId])
   @@index([userId, section])
   @@index([userId, importedAt])
+}
+
+model UtangPiutang {
+  id             Int                 @id @default(autoincrement())
+  userId         Int
+  jenis          JenisUtangPiutang
+  status         StatusUtangPiutang  @default(BELUM)
+  namaPihak      String
+  tanggal        DateTime
+  jatuhTempo     DateTime?
+  jumlah         Int
+  sudahDibayar   Int                 @default(0)
+  catatan        String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  user       User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pembayaran PembayaranUtangPiutang[]
+
+  @@index([userId, jenis, status])
+  @@index([userId, tanggal])
+}
+
+model PembayaranUtangPiutang {
+  id              Int          @id @default(autoincrement())
+  utangPiutangId  Int
+  userId          Int
+  tanggal         DateTime
+  jumlah          Int
+  keterangan      String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  utangPiutang UtangPiutang @relation(fields: [utangPiutangId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([utangPiutangId])
+  @@index([userId, tanggal])
 }

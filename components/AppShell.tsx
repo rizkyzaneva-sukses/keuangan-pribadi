@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ReactNode, useState, useEffect } from "react";
 import { 
   LayoutDashboard, Wallet, PiggyBank, FileStack, 
-  TrendingUp, Users, HandHeart, Coins,
+  TrendingUp, Users, HandHeart, Coins, ArrowLeftRight,
   LogOut, Menu, ChevronLeft, ChevronRight, BookOpen, DatabaseBackup,
   type LucideIcon,
 } from "lucide-react";
@@ -24,6 +24,7 @@ const NAV_INVESTASI = [
 ];
 
 const NAV_LAINNYA = [
+  { href: "/utang-piutang", label: "Utang Piutang", icon: ArrowLeftRight },
   { href: "/zakat", label: "Zakat", icon: Coins },
   { href: "/laporan", label: "Laporan", icon: FileStack },
   { href: "/import-lama", label: "Import Lama", icon: DatabaseBackup },

@@ -28,6 +28,7 @@ export default async function PanduanPage() {
             <div className="flex gap-3 items-start"><span className="font-mono text-[var(--accent-gold)] w-24">/murobahah</span><span className="text-[var(--text-secondary)]">Pembiayaan murobahah (imbal hasil)</span></div>
             <div className="flex gap-3 items-start"><span className="font-mono text-[var(--accent-gold)] w-24">/templates</span><span className="text-[var(--text-secondary)]">Template alokasi profit (SETUP AWAL)</span></div>
             <div className="flex gap-3 items-start"><span className="font-mono text-[var(--accent-gold)] w-24">/wallet</span><span className="text-[var(--text-secondary)]">Wallet pos alokasi & penarikan</span></div>
+            <div className="flex gap-3 items-start"><span className="font-mono text-[var(--accent-gold)] w-24">/utang-piutang</span><span className="text-[var(--text-secondary)]">Pencatatan utang, piutang, dan cicilannya</span></div>
             <div className="flex gap-3 items-start"><span className="font-mono text-[var(--accent-gold)] w-24">/zakat</span><span className="text-[var(--text-secondary)]">Kewajiban zakat</span></div>
           </div>
         </div>
@@ -197,6 +198,25 @@ export default async function PanduanPage() {
             <div className="mt-3 pt-3 border-t border-[var(--bg-border)] text-[0.8rem] text-[var(--text-secondary)] space-y-3 cursor-text">
               <p>Mencatat pemasukan dan pengeluaran harian dari aktivitas sehari-hari (bukan investasi).</p>
               <p>Kas harian <strong>terpisah sepenuhnya</strong> dari saldo investasi dan wallet pos alokasi. Gunakan ini untuk mencatat gaji bulanan, belanja makan, bayar tagihan listrik, dsb.</p>
+            </div>
+          </details>
+
+          <details className="card group cursor-pointer">
+            <summary className="font-semibold text-[0.9rem] flex justify-between items-center outline-none list-none">
+              <span>🤝 Utang Piutang (/utang-piutang)</span>
+              <span className="text-[var(--text-muted)] group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <div className="mt-3 pt-3 border-t border-[var(--bg-border)] text-[0.8rem] text-[var(--text-secondary)] space-y-3 cursor-text">
+              <p>Gunakan modul ini untuk mencatat utang ke orang lain maupun piutang yang harus dibayar ke Anda.</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Pilih jenis <strong>UTANG</strong> atau <strong>PIUTANG</strong>.</li>
+                <li>Masukkan tanggal asli transaksi agar catatan lama tetap rapi.</li>
+                <li>Pembayaran bisa dicicil berkali-kali sampai status otomatis menjadi <strong>LUNAS</strong>.</li>
+                <li>Secara default transaksi akan ikut dicatat ke <strong>Kas Harian</strong>.</li>
+              </ul>
+              <div className="bg-[var(--bg-elevated)] p-2 rounded text-[0.75rem] border border-[var(--accent-gold)]/30">
+                <strong className="text-[var(--accent-gold)]">TIP:</strong> Untuk transaksi lama yang kasnya sudah pernah masuk manual, hilangkan centang <strong>Catat juga ke Kas Harian</strong> agar tidak dobel.
+              </div>
             </div>
           </details>
         </div>
