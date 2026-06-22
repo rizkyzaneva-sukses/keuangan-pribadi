@@ -5,10 +5,9 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
-# npm ci fails with "Exit handler never called" bug in Docker
-# Using yarn as workaround
-RUN corepack enable && corepack prepare yarn@stable --activate
-RUN yarn install --frozen-lockfile 2>/dev/null || yarn install
+# Keep the package manager aligned with package-lock.json. Yarn 4 defaults to
+# Plug'n'Play and therefore does not create the node_modules copied below.
+RUN npm ci --no-audit --no-fund
 
 # 2. Rebuild the source code only when needed
 FROM base AS builder
