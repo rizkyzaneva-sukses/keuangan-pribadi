@@ -19,9 +19,16 @@ COPY . .
 ARG DATABASE_URL
 ARG SESSION_SECRET
 ARG NODE_ENV
+ARG DEPLOYMENT_VERSION
+ARG DEPLOYMENT_ID
+ARG GIT_SHA
+ARG NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
 ENV DATABASE_URL=$DATABASE_URL
 ENV SESSION_SECRET=$SESSION_SECRET
 ENV NODE_ENV="production"
+ENV DEPLOYMENT_VERSION=$DEPLOYMENT_VERSION
+ENV DEPLOYMENT_ID=$DEPLOYMENT_ID
+ENV GIT_SHA=$GIT_SHA
 ENV NEXT_TELEMETRY_DISABLED=1
 # Ubah sqlite jadi postgresql untuk build Docker
 RUN node -e "const fs = require('fs'); const file = 'prisma/schema.prisma'; let data = fs.readFileSync(file, 'utf8'); data = data.replace(/provider\s*=\s*\"sqlite\"/g, 'provider = \"postgresql\"'); fs.writeFileSync(file, data);"

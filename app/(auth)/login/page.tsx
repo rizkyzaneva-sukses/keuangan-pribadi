@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { type FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -12,7 +12,9 @@ export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     startTransition(async () => {
       try {
         const res = await fetch("/api/auth/login", {
@@ -33,8 +35,8 @@ export default function LoginPage() {
 
         router.push("/dashboard");
         router.refresh();
-      } catch (err: any) {
-        setError(err.message || "Login gagal");
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Login gagal");
       }
     });
   };
@@ -64,7 +66,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form action={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <label
               htmlFor="email"
