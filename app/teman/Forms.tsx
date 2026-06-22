@@ -295,3 +295,84 @@ export function DevidenForm({ investasiTemanId }: { investasiTemanId: number }) 
     </div>
   );
 }
+
+export function DevidenEditForm({
+  devidenId,
+  initialTanggal,
+}: {
+  devidenId: number;
+  initialTanggal: string;
+}) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [tanggal, setTanggal] = useState(initialTanggal);
+  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  const submit = () => {
+    setError("");
+    startTransition(async () => {
+      const res = await fetch(`/api/deviden/${devidenId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tanggal }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setError(body?.message || "Gagal mengubah tanggal deviden");
+        return;
+      }
+      setOpen(false);
+      router.refresh();
+    });
+  };
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="btn-ghost px-2 py-0.5 text-[0.7rem]"
+      >
+        Edit
+      </button>
+    );
+  }
+
+  return (
+    <div className="rounded-md p-2.5" style={{ border: "1px solid var(--bg-border)", backgroundColor: "var(--bg-elevated)" }}>
+      <div className="mb-2 text-[0.75rem]" style={{ color: "var(--text-secondary)" }}>
+        Ubah tanggal deviden
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <input
+          type="date"
+          value={tanggal}
+          onChange={(e) => setTanggal(e.target.value)}
+          className="form-input"
+          style={{ width: "auto" }}
+        />
+        <button
+          type="button"
+          onClick={submit}
+          disabled={isPending}
+          className="btn-primary px-3 py-1.5 text-[0.8rem] font-medium disabled:opacity-50"
+        >
+          {isPending ? "Menyimpan..." : "Simpan"}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setTanggal(initialTanggal);
+            setError("");
+            setOpen(false);
+          }}
+          className="btn-ghost px-2.5 py-1.5 text-[0.8rem]"
+        >
+          Batal
+        </button>
+      </div>
+      {error && <p className="mt-2 text-[0.75rem]" style={{ color: "var(--accent-red)" }}>{error}</p>}
+    </div>
+  );
+}

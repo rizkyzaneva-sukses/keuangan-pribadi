@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { BayarZakatButton } from "./BayarZakatButton";
+import { BayarSemuaZakatButton } from "./BayarSemuaZakatButton";
 import type { Prisma } from "@prisma/client";
 
 export default async function ZakatPage({
@@ -104,6 +105,11 @@ export default async function ZakatPage({
         </select>
         <button className="btn-primary px-3 py-1.5 text-[0.8rem]">Filter</button>
       </form>
+
+      <BayarSemuaZakatButton
+        totalSisa={totalSisa}
+        jumlahItem={aggBelum._count + aggSebagian._count}
+      />
 
       {/* Tabel */}
       <div className="overflow-hidden rounded-lg border border-[var(--bg-border)] bg-[var(--bg-surface)]">

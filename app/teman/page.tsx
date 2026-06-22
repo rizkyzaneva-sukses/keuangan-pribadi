@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
-import { TemanEditForm, TemanForm, DevidenForm } from "./Forms";
+import { TemanEditForm, TemanForm, DevidenEditForm, DevidenForm } from "./Forms";
 
 export default async function TemanPage({
   searchParams,
@@ -108,15 +108,23 @@ export default async function TemanPage({
                     <div className="section-title">Riwayat Deviden</div>
                     <div className="overflow-y-auto max-h-[300px] space-y-1 pr-1">
                       {t.deviden.map((d) => (
-                      <div
-                        key={d.id}
-                        className="flex justify-between rounded-md px-2.5 py-1.5 text-[0.8rem]"
-                        style={{ border: "1px solid var(--bg-border)" }}
-                      >
-                        <span style={{ color: "var(--text-secondary)" }}>{formatTanggal(d.tanggal)}</span>
-                        <span className="font-medium" style={{ color: "var(--accent-green)" }}>{formatRupiah(d.jumlah)}</span>
-                      </div>
-                    ))}
+                        <div
+                          key={d.id}
+                          className="rounded-md px-2.5 py-1.5 text-[0.8rem]"
+                          style={{ border: "1px solid var(--bg-border)" }}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span style={{ color: "var(--text-secondary)" }}>{formatTanggal(d.tanggal)}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium" style={{ color: "var(--accent-green)" }}>{formatRupiah(d.jumlah)}</span>
+                              <DevidenEditForm
+                                devidenId={d.id}
+                                initialTanggal={d.tanggal.toISOString().slice(0, 10)}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}

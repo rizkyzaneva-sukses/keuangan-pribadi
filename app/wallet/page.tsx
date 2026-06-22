@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { PenarikanForm } from "./PenarikanForm";
+import { ResetWalletButton } from "./ResetWalletButton";
 
 export default async function WalletPage() {
   const { userId, email } = await requireUser();
@@ -49,7 +50,10 @@ export default async function WalletPage() {
         ))}
       </div>
 
-      <PenarikanForm walletPos={walletPos.map((w) => ({ id: w.id, nama: w.pos.nama, saldo: w.saldoSaatIni }))} />
+      <div className="flex flex-wrap items-start gap-3">
+        <PenarikanForm walletPos={walletPos.map((w) => ({ id: w.id, nama: w.pos.nama, saldo: w.saldoSaatIni }))} />
+        <ResetWalletButton totalSaldo={totalSaldo} />
+      </div>
 
       <div className="mt-6 mb-3 page-header">
         <h2 style={{ fontSize: "0.9rem" }}>Riwayat Penarikan</h2>
