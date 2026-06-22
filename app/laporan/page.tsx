@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
+import { PrintButton } from "@/components/PrintButton";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 
 export default async function LaporanPage() {
@@ -69,12 +70,7 @@ export default async function LaporanPage() {
           <h2>Laporan Keuangan</h2>
           <p>Ringkasan keuangan {now.getFullYear()} — bisa di-print atau export.</p>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="btn-primary px-4 py-2 text-sm font-medium no-print"
-        >
-          🖨️ Print / PDF
-        </button>
+        <PrintButton />
       </div>
 
       {/* Ringkasan Utama */}
