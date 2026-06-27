@@ -7,8 +7,13 @@ export type SessionData = {
   isLoggedIn: boolean;
 };
 
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret && process.env.NODE_ENV === "production") {
+  throw new Error("SESSION_SECRET environment variable is required in production");
+}
+
 export const sessionOptions: SessionOptions = {
-  password: process.env.SESSION_SECRET || "dev-secret-dev-secret-dev-secret-32char",
+  password: sessionSecret || "dev-secret-dev-secret-dev-secret-32char",
   cookieName: "keuangan_pribadi_session",
   cookieOptions: {
     httpOnly: true,

@@ -3,93 +3,80 @@ import bcrypt from "bcryptjs";
 import "dotenv/config";
 
 async function main() {
-  // Create user Rizky (only set password on first create, not on update)
-  const hashedPassword = await bcrypt.hash("Income10MpertahunInsyaaAllooh", 12);
-  const user = await prisma.user.upsert({
-    where: { email: "rizky@maulanacorp.com" },
-    update: {},
-    create: {
-      email: "rizky@maulanacorp.com",
+  // Seed hanya jalan jika belum ada user sama sekali
+  const userCount = await prisma.user.count();
+  if (userCount > 0) {
+    console.log("⏭️  User sudah ada, seed dilewati.");
+    return;
+  }
+
+  const email = process.env.SEED_EMAIL || "admin@example.com";
+  const password = process.env.SEED_PASSWORD || "changeme123";
+  const nama = process.env.SEED_NAME || "Admin";
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+  const user = await prisma.user.create({
+    data: {
+      email,
       passwordHash: hashedPassword,
-      nama: "Rizky",
+      nama,
     },
   });
 
-  console.log(`User created: ${user.email}`);
+  console.log(`✅ User default dibuat: ${user.email}`);
 
   // Create kategori kas default
-  const kategoriList = ["Gaji", "Belanja", "Tabungan", "Lain-lain"];
-  for (const nama of kategoriList) {
-    await prisma.kategoriKas.upsert({
-      where: { userId_nama: { userId: user.id, nama } },
-      update: {},
-      create: { userId: user.id, nama },
+  const kategoriList = ["Gaji", "Belanja", "Tabungan", "Transfer", "Lain-lain"];
+  for (const namaKategori of kategoriList) {
+    await prisma.kategoriKas.create({
+      data: { userId: user.id, nama: namaKategori },
     });
   }
 
   // Create template default
-  let template = await prisma.templateAlokasi.findFirst({
-    where: { userId: user.id, isDefault: true },
+  const template = await prisma.templateAlokasi.create({
+    data: {
+      userId: user.id,
+      nama: "Template Default",
+      catatan: "Template alokasi profit default",
+      isDefault: true,
+    },
   });
-
-  if (!template) {
-    template = await prisma.templateAlokasi.create({
-      data: {
-        userId: user.id,
-        nama: "Template Default Rizky",
-        catatan: "Template alokasi profit default",
-        isDefault: true,
-      },
-    });
-  }
 
   // Create pos alokasi default
   const posData = [
-    { nama: "Aset Pasif", persentase: 20, urutan: 1 },
-    { nama: "Reinvestasi Bisnis", persentase: 40, urutan: 2 },
-    { nama: "Umroh Keluarga", persentase: 15, urutan: 3 },
-    { nama: "Jalan-jalan Keluarga", persentase: 10, urutan: 4 },
-    { nama: "Pendidikan Anak", persentase: 5, urutan: 5 },
-    { nama: "Kebutuhan & Hobi Pribadi", persentase: 10, urutan: 6 },
-    { nama: "Dana Darurat Keluarga", persentase: 0, urutan: 7 },
+    { nama: "Tabungan", persentase: 30, urutan: 1 },
+    { nama: "Investasi", persentase: 30, urutan: 2 },
+    { nama: "Sedekah/Zakat", persentase: 10, urutan: 3 },
+    { nama: "Dana Darurat", persentase: 15, urutan: 4 },
+    { nama: "Pribadi", persentase: 15, urutan: 5 },
   ];
 
   for (const pos of posData) {
-    await prisma.posAlokasi.upsert({
-      where: {
-        templateId_nama: { templateId: template.id, nama: pos.nama },
-      },
-      update: {},
-      create: {
+    const posRecord = await prisma.posAlokasi.create({
+      data: {
         templateId: template.id,
         nama: pos.nama,
         persentase: pos.persentase,
         urutan: pos.urutan,
       },
     });
-  }
 
-  // Create wallet pos untuk template default
-  for (const pos of posData) {
-    const posRecord = await prisma.posAlokasi.findFirst({
-      where: { templateId: template.id, nama: pos.nama },
+    await prisma.walletPos.create({
+      data: {
+        userId: user.id,
+        posId: posRecord.id,
+        saldoSaatIni: 0,
+        totalMasuk: 0,
+        totalKeluar: 0,
+      },
     });
-    if (posRecord) {
-      await prisma.walletPos.upsert({
-        where: { posId: posRecord.id },
-        update: {},
-        create: {
-          userId: user.id,
-          posId: posRecord.id,
-          saldoSaatIni: 0,
-          totalMasuk: 0,
-          totalKeluar: 0,
-        },
-      });
-    }
   }
 
   console.log("✅ Seed data default berhasil dibuat!");
+  console.log(`   Email: ${email}`);
+  console.log(`   Password: ${password}`);
+  console.log("   ⚠️  Segera ganti password setelah login!");
 }
 
 main()

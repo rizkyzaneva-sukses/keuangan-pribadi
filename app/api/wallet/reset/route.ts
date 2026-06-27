@@ -31,6 +31,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ count: 0, total: 0 });
     }
 
+    // Hitung total SEBELUM transaksi mengubah saldo jadi 0
+    const total = wallets.reduce((sum, wallet) => sum + wallet.saldoSaatIni, 0);
+
     await db.$transaction(async (tx) => {
       for (const wallet of wallets) {
         await tx.penarikan.create({
@@ -54,7 +57,6 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    const total = wallets.reduce((sum, wallet) => sum + wallet.saldoSaatIni, 0);
     return NextResponse.json({ count: wallets.length, total });
   } catch (err: unknown) {
     console.error("WALLET_RESET error:", err);
