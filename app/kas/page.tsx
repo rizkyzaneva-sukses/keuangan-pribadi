@@ -16,9 +16,13 @@ export default async function KasPage({
   const page = Number(sp.page || 1);
   const perPage = 20;
 
-  const where: any = { userId };
+  const where: Record<string, unknown> = { userId };
   if (sp.jenis === "MASUK" || sp.jenis === "KELUAR") where.jenis = sp.jenis;
   if (sp.kategoriId) where.kategoriId = Number(sp.kategoriId);
+
+  // Filter khusus untuk sum: hanya filter by userId, bukan by jenis/kategori
+  // agar total masuk/keluar/saldo tetap menunjukkan gambaran keseluruhan
+  const whereUser = { userId };
 
   const [kas, total, kategoriList, sumMasuk, sumKeluar] = await Promise.all([
     db.kas.findMany({
@@ -30,8 +34,8 @@ export default async function KasPage({
     }),
     db.kas.count({ where }),
     db.kategoriKas.findMany({ where: { userId }, orderBy: { nama: "asc" } }),
-    db.kas.aggregate({ where: { userId, jenis: "MASUK" }, _sum: { jumlah: true } }),
-    db.kas.aggregate({ where: { userId, jenis: "KELUAR" }, _sum: { jumlah: true } }),
+    db.kas.aggregate({ where: { ...whereUser, jenis: "MASUK" }, _sum: { jumlah: true } }),
+    db.kas.aggregate({ where: { ...whereUser, jenis: "KELUAR" }, _sum: { jumlah: true } }),
   ]);
 
   const totalPage = Math.ceil(total / perPage);

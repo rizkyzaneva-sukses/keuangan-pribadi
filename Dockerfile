@@ -29,8 +29,6 @@ ENV DEPLOYMENT_VERSION=$DEPLOYMENT_VERSION
 ENV DEPLOYMENT_ID=$DEPLOYMENT_ID
 ENV GIT_SHA=$GIT_SHA
 ENV NEXT_TELEMETRY_DISABLED=1
-# Ubah sqlite jadi postgresql untuk build Docker
-RUN node -e "const fs = require('fs'); const file = 'prisma/schema.prisma'; let data = fs.readFileSync(file, 'utf8'); data = data.replace(/provider\s*=\s*\"sqlite\"/g, 'provider = \"postgresql\"'); fs.writeFileSync(file, data);"
 RUN npx prisma generate
 # Clean build: hapus .next lama sebelum build
 RUN rm -rf .next

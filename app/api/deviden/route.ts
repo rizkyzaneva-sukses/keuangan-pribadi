@@ -38,18 +38,21 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      const zakatJumlah = Math.round(jml * 0.025);
-      await tx.zakat.create({
-        data: {
-          userId,
-          sumber: "DEVIDEN",
-          tahun: tgl.getFullYear(),
-          jumlah: zakatJumlah,
-          tanggalWajib: tgl,
-          devidenId: deviden.id,
-          catatan: `Auto-generated zakat 2.5% dari deviden ${teman.namaTeman}`,
-        },
-      });
+      // Hanya buat zakat jika jumlah > 0
+      if (jml > 0) {
+        const zakatJumlah = Math.round(jml * 0.025);
+        await tx.zakat.create({
+          data: {
+            userId,
+            sumber: "DEVIDEN",
+            tahun: tgl.getFullYear(),
+            jumlah: zakatJumlah,
+            tanggalWajib: tgl,
+            devidenId: deviden.id,
+            catatan: `Auto-generated zakat 2.5% dari deviden ${teman.namaTeman}`,
+          },
+        });
+      }
 
       return deviden;
     });
