@@ -134,14 +134,6 @@ const KAT_IN = [
 ] as const;
 const KAT_OUT = ["OUT_BUSINESS_CAPITAL", "OUT_TOPUP_CAPITAL", "OUT_OTHER"] as const;
 
-// Dividen murni = tidak ada principal; pengembalian modal & topup modal = tidak ada profit.
-const KATEGORI_TANPA_PRINCIPAL = new Set(["IN_DIVIDEND"]);
-const KATEGORI_TANPA_PROFIT = new Set([
-  "IN_CAPITAL_RETURN",
-  "OUT_BUSINESS_CAPITAL",
-  "OUT_TOPUP_CAPITAL",
-]);
-
 export function InvestasiEditForm({
   investasiId,
   initial,
@@ -320,14 +312,6 @@ export function TrxForm({
 
   const opts = arah === "IN" ? KAT_IN : KAT_OUT;
   const total = principal + profit;
-  const tanpaPrincipal = KATEGORI_TANPA_PRINCIPAL.has(kategori);
-  const tanpaProfit = KATEGORI_TANPA_PROFIT.has(kategori);
-
-  const pilihKategori = (k: string) => {
-    setKategori(k);
-    if (KATEGORI_TANPA_PRINCIPAL.has(k)) setPrincipal(0);
-    if (KATEGORI_TANPA_PROFIT.has(k)) setProfit(0);
-  };
 
   const submit = () => {
     setError("");
@@ -391,14 +375,14 @@ export function TrxForm({
           onChange={(e) => {
             const v = e.target.value as "IN" | "OUT";
             setArah(v);
-            pilihKategori(v === "IN" ? KAT_IN[0] : KAT_OUT[0]);
+            setKategori(v === "IN" ? KAT_IN[0] : KAT_OUT[0]);
           }}
           className="form-input"
         >
           <option value="IN">IN (Masuk)</option>
           <option value="OUT">OUT (Keluar)</option>
         </select>
-        <select value={kategori} onChange={(e) => pilihKategori(e.target.value)} className="form-input">
+        <select value={kategori} onChange={(e) => setKategori(e.target.value)} className="form-input">
           {opts.map((k) => (
             <option key={k} value={k}>{k.replace(/_/g, " ")}</option>
           ))}
@@ -407,19 +391,15 @@ export function TrxForm({
           type="number"
           value={principal || ""}
           onChange={(e) => setPrincipal(Number(e.target.value))}
-          placeholder={tanpaPrincipal ? "Principal (0, tidak dipakai)" : "Principal"}
-          disabled={tanpaPrincipal}
+          placeholder="Principal"
           className="form-input"
-          style={tanpaPrincipal ? { backgroundColor: "var(--bg-surface)", color: "var(--text-muted)", cursor: "default" } : undefined}
         />
         <input
           type="number"
           value={profit || ""}
           onChange={(e) => setProfit(Number(e.target.value))}
-          placeholder={tanpaProfit ? "Profit (0, tidak dipakai)" : "Profit"}
-          disabled={tanpaProfit}
+          placeholder="Profit"
           className="form-input"
-          style={tanpaProfit ? { backgroundColor: "var(--bg-surface)", color: "var(--text-muted)", cursor: "default" } : undefined}
         />
         <input
           readOnly
