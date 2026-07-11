@@ -42,6 +42,9 @@ export default async function InvestasiPage({
     }),
   ]);
 
+  const metodeBayarOptions = [...new Set(riwayatBayar.map((t) => t.metodeBayar).filter((v): v is string => !!v))].sort();
+  const akunOptions = [...new Set(riwayatBayar.map((t) => t.akun).filter((v): v is string => !!v))].sort();
+
   const dokumenList = await db.dokumen.findMany({
     where: { userId, tipe: "INVESTASI", refId: { in: investasi.map((i) => i.id) } },
     orderBy: { createdAt: "desc" },
