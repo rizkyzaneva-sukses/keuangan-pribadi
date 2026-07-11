@@ -16,6 +16,7 @@ export function BuktiUpload({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [preview, setPreview] = useState<string | null>(value || null);
+  const [showPreview, setShowPreview] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const upload = async (file: File) => {
@@ -82,15 +83,22 @@ export function BuktiUpload({
         )}
       </div>
       {preview && (
-        <a href={preview} target="_blank" rel="noreferrer" className="mt-1.5 block">
+        <button
+          type="button"
+          onClick={() => setShowPreview(true)}
+          className="mt-1.5 block rounded-md border p-0 overflow-hidden"
+          style={{ borderColor: "var(--bg-border)" }}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={preview}
             alt="Bukti"
-            className="h-16 w-16 rounded-md border object-cover"
-            style={{ borderColor: "var(--bg-border)" }}
+            className="h-16 w-16 object-cover"
           />
-        </a>
+        </button>
+      )}
+      {showPreview && preview && (
+        <Lightbox src={preview} onClose={() => setShowPreview(false)} />
       )}
       {error && (
         <p className="mt-1 text-[0.7rem]" style={{ color: "var(--accent-red)" }}>
@@ -101,17 +109,52 @@ export function BuktiUpload({
   );
 }
 
-export function BuktiThumb({ path, size = 14 }: { path: string; size?: number }) {
+function Lightbox({ src, onClose }: { src: string; onClose: () => void }) {
   return (
-    <a href={path} target="_blank" rel="noreferrer" title="Lihat bukti">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Tutup"
+        className="absolute right-4 top-4 rounded-full bg-black/50 px-3 py-1 text-lg text-white/80 transition-colors hover:bg-black/70 hover:text-white"
+      >
+        ✕
+      </button>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={path}
+        src={src}
         alt="Bukti"
-        className="inline-block rounded border object-cover"
-        style={{ height: size, width: size, borderColor: "var(--bg-border)" }}
+        className="max-h-[90vh] max-w-[90vw] rounded-lg border object-contain"
+        style={{ borderColor: "var(--bg-border)" }}
+        onClick={(e) => e.stopPropagation()}
       />
-    </a>
+    </div>
+  );
+}
+
+export function BuktiThumb({ path, size = 14 }: { path: string; size?: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        title="Lihat bukti"
+        className="inline-block overflow-hidden rounded border p-0 align-middle"
+        style={{ height: size, width: size, borderColor: "var(--bg-border)" }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={path}
+          alt="Bukti"
+          className="h-full w-full object-cover"
+        />
+      </button>
+      {open && <Lightbox src={path} onClose={() => setOpen(false)} />}
+    </>
   );
 }
 
