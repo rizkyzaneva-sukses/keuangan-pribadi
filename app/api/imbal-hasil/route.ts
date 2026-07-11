@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     const { userId } = await requireUser();
     const body = await req.json();
-    const { murobahahId, tanggal, jumlah, pokokDiterima } = body;
+    const { murobahahId, tanggal, jumlah, pokokDiterima, buktiPath } = body;
 
     if (!murobahahId || !tanggal) {
       return NextResponse.json({ message: "Required fields missing" }, { status: 400 });
@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
           tanggal: tgl,
           pokokDiterima: pokokMasuk,
           jumlah: jml,
+          buktiPath: typeof buktiPath === "string" && buktiPath ? buktiPath : null,
         },
       });
 

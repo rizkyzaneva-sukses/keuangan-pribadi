@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   try {
     const { userId } = await requireUser();
     const body = await req.json();
-    const { namaPartner, pokok, totalImbalHasil, tanggalMulai, jatuhTempo, catatan, templateId } = body;
+    const { namaPartner, pokok, totalImbalHasil, tanggalMulai, jatuhTempo, catatan, templateId, buktiPath } = body;
 
     if (!namaPartner || !pokok || !totalImbalHasil || !tanggalMulai || !jatuhTempo) {
       return NextResponse.json({ message: "Required fields missing" }, { status: 400 });
@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
         tanggalMulai: new Date(tanggalMulai),
         jatuhTempo: new Date(jatuhTempo),
         catatan: catatan || null,
+        buktiPath: typeof buktiPath === "string" && buktiPath ? buktiPath : null,
       },
     });
     return NextResponse.json(m);

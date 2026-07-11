@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { PencilLine } from "lucide-react";
+import { BuktiUpload } from "@/components/Bukti";
 
 type TemplateOption = { id: number; nama: string; archivedAt?: Date | null };
 
@@ -16,6 +17,7 @@ export function MurobahahForm({ templates }: { templates: TemplateOption[] }) {
   const [jatuhTempo, setJatuhTempo] = useState("");
   const [catatan, setCatatan] = useState("");
   const [templateId, setTemplateId] = useState<number | "">("");
+  const [buktiPath, setBuktiPath] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -32,6 +34,7 @@ export function MurobahahForm({ templates }: { templates: TemplateOption[] }) {
           tanggalMulai,
           jatuhTempo,
           catatan,
+          buktiPath,
           templateId: templateId === "" ? null : templateId,
         }),
       });
@@ -136,6 +139,9 @@ export function MurobahahForm({ templates }: { templates: TemplateOption[] }) {
             </option>
           ))}
         </select>
+      </div>
+      <div className="w-full mt-2">
+        <BuktiUpload value={buktiPath} onChange={setBuktiPath} label="Bukti TF" />
       </div>
       {error && <p className="mt-2 text-[0.8rem]" style={{ color: "var(--accent-red)" }}>{error}</p>}
       <div className="mt-3 flex gap-2">
@@ -285,6 +291,7 @@ export function ImbalHasilForm({ murobahahId }: { murobahahId: number }) {
   const [tanggal, setTanggal] = useState(new Date().toISOString().slice(0, 10));
   const [pokokDiterima, setPokokDiterima] = useState(0);
   const [jumlah, setJumlah] = useState(0);
+  const [buktiPath, setBuktiPath] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -294,7 +301,7 @@ export function ImbalHasilForm({ murobahahId }: { murobahahId: number }) {
       const res = await fetch("/api/imbal-hasil", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ murobahahId, tanggal, pokokDiterima, jumlah }),
+        body: JSON.stringify({ murobahahId, tanggal, pokokDiterima, jumlah, buktiPath }),
       });
       if (!res.ok) {
         setError(await res.text());
@@ -357,6 +364,9 @@ export function ImbalHasilForm({ murobahahId }: { murobahahId: number }) {
         >
           ✕
         </button>
+      </div>
+      <div className="mt-2">
+        <BuktiUpload value={buktiPath} onChange={setBuktiPath} label="Bukti TF" />
       </div>
       <p className="mt-2 text-[0.72rem]" style={{ color: "var(--text-muted)" }}>
         Pokok yang kembali dicatat terpisah. Zakat dihitung dari kolom imbal diterima dan hanya 97.5% imbal yang dialokasikan ke pos.

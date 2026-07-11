@@ -21,9 +21,9 @@ export default async function InvestasiPage({
     select: { nama: true, email: true },
   });
 
-  const [investasi, templates] = await Promise.all([
+  const [investasi, templates, riwayatBayar] = await Promise.all([
     db.investasi.findMany({
-      where: { 
+      where: {
         userId,
         ...(q ? { nama: { contains: q, ...insensitiveFilter() } } : {})
       },
@@ -35,7 +35,14 @@ export default async function InvestasiPage({
       orderBy: { createdAt: "desc" },
     }),
     db.templateAlokasi.findMany({ where: { userId }, orderBy: { nama: "asc" } }),
+    db.trxInvestasi.findMany({
+      where: { userId },
+      select: { metodeBayar: true, akun: true },
+    }),
   ]);
+
+  const metodeBayarOptions = [...new Set(riwayatBayar.map((t) => t.metodeBayar).filter((v): v is string => !!v))].sort();
+  const akunOptions = [...new Set(riwayatBayar.map((t) => t.akun).filter((v): v is string => !!v))].sort();
 
   const totalModal = investasi.reduce((sum, inv) => {
     return (
@@ -195,7 +202,7 @@ export default async function InvestasiPage({
 
                 {/* Add Trx Button */}
                 <div className="mb-2.5">
-                  <TrxForm investasiId={inv.id} />
+                  <TrxForm investasiId={inv.id} metodeBayarOptions={metodeBayarOptions} akunOptions={akunOptions} />
                 </div>
 
                 {/* Transaction Table */}

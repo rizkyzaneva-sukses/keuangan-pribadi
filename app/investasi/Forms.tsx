@@ -134,6 +134,14 @@ const KAT_IN = [
 ] as const;
 const KAT_OUT = ["OUT_BUSINESS_CAPITAL", "OUT_TOPUP_CAPITAL", "OUT_OTHER"] as const;
 
+// Dividen murni = tidak ada principal; pengembalian modal & topup modal = tidak ada profit.
+const KATEGORI_TANPA_PRINCIPAL = new Set(["IN_DIVIDEND"]);
+const KATEGORI_TANPA_PROFIT = new Set([
+  "IN_CAPITAL_RETURN",
+  "OUT_BUSINESS_CAPITAL",
+  "OUT_TOPUP_CAPITAL",
+]);
+
 export function InvestasiEditForm({
   investasiId,
   initial,
@@ -287,7 +295,15 @@ export function InvestasiEditForm({
   );
 }
 
-export function TrxForm({ investasiId }: { investasiId: number }) {
+export function TrxForm({
+  investasiId,
+  metodeBayarOptions,
+  akunOptions,
+}: {
+  investasiId: number;
+  metodeBayarOptions: string[];
+  akunOptions: string[];
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [tanggal, setTanggal] = useState(new Date().toISOString().slice(0, 10));
@@ -304,6 +320,14 @@ export function TrxForm({ investasiId }: { investasiId: number }) {
 
   const opts = arah === "IN" ? KAT_IN : KAT_OUT;
   const total = principal + profit;
+  const tanpaPrincipal = KATEGORI_TANPA_PRINCIPAL.has(kategori);
+  const tanpaProfit = KATEGORI_TANPA_PROFIT.has(kategori);
+
+  const pilihKategori = (k: string) => {
+    setKategori(k);
+    if (KATEGORI_TANPA_PRINCIPAL.has(k)) setPrincipal(0);
+    if (KATEGORI_TANPA_PROFIT.has(k)) setProfit(0);
+  };
 
   const submit = () => {
     setError("");
@@ -367,14 +391,14 @@ export function TrxForm({ investasiId }: { investasiId: number }) {
           onChange={(e) => {
             const v = e.target.value as "IN" | "OUT";
             setArah(v);
-            setKategori(v === "IN" ? KAT_IN[0] : KAT_OUT[0]);
+            pilihKategori(v === "IN" ? KAT_IN[0] : KAT_OUT[0]);
           }}
           className="form-input"
         >
           <option value="IN">IN (Masuk)</option>
           <option value="OUT">OUT (Keluar)</option>
         </select>
-        <select value={kategori} onChange={(e) => setKategori(e.target.value)} className="form-input">
+        <select value={kategori} onChange={(e) => pilihKategori(e.target.value)} className="form-input">
           {opts.map((k) => (
             <option key={k} value={k}>{k.replace(/_/g, " ")}</option>
           ))}
@@ -383,15 +407,19 @@ export function TrxForm({ investasiId }: { investasiId: number }) {
           type="number"
           value={principal || ""}
           onChange={(e) => setPrincipal(Number(e.target.value))}
-          placeholder="Principal"
+          placeholder={tanpaPrincipal ? "Principal (0, tidak dipakai)" : "Principal"}
+          disabled={tanpaPrincipal}
           className="form-input"
+          style={tanpaPrincipal ? { backgroundColor: "var(--bg-surface)", color: "var(--text-muted)", cursor: "default" } : undefined}
         />
         <input
           type="number"
           value={profit || ""}
           onChange={(e) => setProfit(Number(e.target.value))}
-          placeholder="Profit"
+          placeholder={tanpaProfit ? "Profit (0, tidak dipakai)" : "Profit"}
+          disabled={tanpaProfit}
           className="form-input"
+          style={tanpaProfit ? { backgroundColor: "var(--bg-surface)", color: "var(--text-muted)", cursor: "default" } : undefined}
         />
         <input
           readOnly
@@ -400,9 +428,31 @@ export function TrxForm({ investasiId }: { investasiId: number }) {
           className="form-input"
           style={{ backgroundColor: "var(--bg-surface)", color: "var(--text-muted)", cursor: "default" }}
         />
-        <input value={metodeBayar} onChange={(e) => setMetodeBayar(e.target.value)} placeholder="Metode bayar" className="form-input" />
-        <input value={akun} onChange={(e) => setAkun(e.target.value)} placeholder="Akun" className="form-input" />
+        <input
+          value={metodeBayar}
+          onChange={(e) => setMetodeBayar(e.target.value)}
+          placeholder="Metode bayar"
+          list={`metode-bayar-options-${investasiId}`}
+          className="form-input"
+        />
+        <input
+          value={akun}
+          onChange={(e) => setAkun(e.target.value)}
+          placeholder="Akun"
+          list={`akun-options-${investasiId}`}
+          className="form-input"
+        />
         <input value={catatan} onChange={(e) => setCatatan(e.target.value)} placeholder="Catatan" className="form-input" />
+        <datalist id={`metode-bayar-options-${investasiId}`}>
+          {metodeBayarOptions.map((m) => (
+            <option key={m} value={m} />
+          ))}
+        </datalist>
+        <datalist id={`akun-options-${investasiId}`}>
+          {akunOptions.map((a) => (
+            <option key={a} value={a} />
+          ))}
+        </datalist>
       </div>
       <div className="mt-1">
         <BuktiUpload value={buktiPath} onChange={setBuktiPath} label="Bukti TF" />

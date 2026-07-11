@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { Receipt } from "lucide-react";
 
 export function BuktiUpload({
   value,
@@ -54,9 +55,15 @@ export function BuktiUpload({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="btn-ghost px-2.5 py-1 text-[0.7rem]"
+          className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[0.72rem] font-medium transition-colors"
+          style={{
+            borderColor: "var(--accent-gold)",
+            color: "var(--accent-gold)",
+            backgroundColor: "rgba(212, 168, 67, 0.08)",
+          }}
           disabled={uploading}
         >
+          <Receipt className="h-3.5 w-3.5" />
           {uploading ? "Mengunggah..." : preview ? "Ganti Bukti" : `+ ${label}`}
         </button>
         {preview && (

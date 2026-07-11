@@ -355,6 +355,7 @@ model Murobahah {
   jatuhTempo      DateTime
   status          StatusMurobahah  @default(AKTIF)
   catatan         String?
+  buktiPath       String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
@@ -374,6 +375,7 @@ model ImbalHasilDiterima {
   tanggal     DateTime
   pokokDiterima Int    @default(0)
   jumlah      Int
+  buktiPath   String?
   sudahDialokasikan Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
