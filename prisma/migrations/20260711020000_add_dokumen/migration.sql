@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "Dokumen" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
     "tipe" TEXT NOT NULL,
     "refId" INTEGER NOT NULL,
@@ -10,10 +10,13 @@ CREATE TABLE "Dokumen" (
     "originalName" TEXT,
     "mime" TEXT,
     "size" INTEGER,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE
+    CONSTRAINT "Dokumen_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE INDEX "Dokumen_userId_tipe_refId_idx" ON "Dokumen" ("userId", "tipe", "refId");
+CREATE INDEX "Dokumen_userId_tipe_refId_idx" ON "Dokumen"("userId", "tipe", "refId");
+
+-- AddForeignKey
+ALTER TABLE "Dokumen" ADD CONSTRAINT "Dokumen_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

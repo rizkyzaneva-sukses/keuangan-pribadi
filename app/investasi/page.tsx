@@ -251,8 +251,7 @@ export default async function InvestasiPage({
                                 <span style={{ color: "var(--accent-green)" }}>✓</span>
                               ) : (
                                 <span style={{ color: "var(--text-muted)" }}>–</span>
-                )}
-                <DokumenList tipe="INVESTASI" refId={inv.id} docs={dokumenByInvestasi.get(inv.id) || []} />
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -260,6 +259,8 @@ export default async function InvestasiPage({
                     </table>
                   </div>
                 )}
+
+                <DokumenList tipe="INVESTASI" refId={inv.id} docs={dokumenByInvestasi.get(inv.id) || []} />
               </div>
             );
           })
