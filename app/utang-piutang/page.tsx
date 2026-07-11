@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { PembayaranUtangPiutangButton, UtangPiutangForm, UtangPiutangFilters } from "./Forms";
+import { insensitiveFilter } from "@/lib/search";
 import type { Prisma } from "@prisma/client";
 
 export default async function UtangPiutangPage({
@@ -17,7 +18,7 @@ export default async function UtangPiutangPage({
   const where: Prisma.UtangPiutangWhereInput = { userId };
   if (sp.jenis === "UTANG" || sp.jenis === "PIUTANG") where.jenis = sp.jenis;
   if (sp.status === "BELUM" || sp.status === "SEBAGIAN" || sp.status === "LUNAS") where.status = sp.status;
-  if (sp.q) where.namaPihak = { contains: sp.q };
+  if (sp.q) where.namaPihak = { contains: sp.q, ...insensitiveFilter() };
 
   const [items, utangRows, piutangRows] = await Promise.all([
     db.utangPiutang.findMany({

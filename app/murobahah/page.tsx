@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { MurobahahEditForm, MurobahahForm, ImbalHasilForm } from "./Forms";
+import { SearchBox } from "@/components/SearchBox";
+import { insensitiveFilter } from "@/lib/search";
 
 export default async function MurobahahPage({
   searchParams,
@@ -18,7 +20,7 @@ export default async function MurobahahPage({
     db.murobahah.findMany({
       where: { 
         userId,
-        ...(q ? { namaPartner: { contains: q } } : {})
+        ...(q ? { namaPartner: { contains: q, ...insensitiveFilter() } } : {})
       },
       include: {
         imbalHasilDiterima: { orderBy: { tanggal: "desc" } },
@@ -44,16 +46,7 @@ export default async function MurobahahPage({
       <div className="flex flex-col md:flex-row gap-3 items-start md:items-center justify-between">
         <MurobahahForm templates={templates} />
         
-        <form method="GET" className="flex items-center gap-2 w-full md:w-auto">
-          <input 
-            type="text" 
-            name="q" 
-            defaultValue={q} 
-            placeholder="Cari partner..." 
-            className="form-input w-full md:w-64"
-          />
-          <button type="submit" className="btn-ghost px-3 py-1.5 text-[0.8rem]">Cari</button>
-        </form>
+        <SearchBox basePath="/murobahah" initialValue={q} placeholder="Cari partner..." />
       </div>
 
       <div className="mt-6 space-y-3">

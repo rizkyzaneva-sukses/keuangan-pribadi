@@ -4,6 +4,8 @@ import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { TemanEditForm, TemanForm, DevidenEditForm, DevidenForm } from "./Forms";
 import { BuktiThumb } from "@/components/Bukti";
+import { SearchBox } from "@/components/SearchBox";
+import { insensitiveFilter } from "@/lib/search";
 
 export default async function TemanPage({
   searchParams,
@@ -19,7 +21,7 @@ export default async function TemanPage({
     db.investasiTeman.findMany({
       where: { 
         userId,
-        ...(q ? { namaTeman: { contains: q } } : {})
+        ...(q ? { namaTeman: { contains: q, ...insensitiveFilter() } } : {})
       },
       include: {
         deviden: { orderBy: { tanggal: "desc" } },
@@ -45,16 +47,7 @@ export default async function TemanPage({
       <div className="flex flex-col md:flex-row gap-3 items-start md:items-center justify-between">
         <TemanForm templates={templates} />
         
-        <form method="GET" className="flex items-center gap-2 w-full md:w-auto">
-          <input 
-            type="text" 
-            name="q" 
-            defaultValue={q} 
-            placeholder="Cari teman/partner..." 
-            className="form-input w-full md:w-64"
-          />
-          <button type="submit" className="btn-ghost px-3 py-1.5 text-[0.8rem]">Cari</button>
-        </form>
+        <SearchBox basePath="/teman" initialValue={q} placeholder="Cari teman/partner..." />
       </div>
 
       <div className="mt-6 space-y-3">

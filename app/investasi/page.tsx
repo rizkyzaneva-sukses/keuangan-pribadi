@@ -5,6 +5,8 @@ import { formatRupiah, formatTanggal } from "@/lib/format";
 import { InvestasiEditForm, InvestasiForm, TrxForm } from "./Forms";
 import { OverrideForm } from "./OverrideForm";
 import { BuktiThumb } from "@/components/Bukti";
+import { SearchBox } from "@/components/SearchBox";
+import { insensitiveFilter } from "@/lib/search";
 
 export default async function InvestasiPage({
   searchParams,
@@ -23,7 +25,7 @@ export default async function InvestasiPage({
     db.investasi.findMany({
       where: { 
         userId,
-        ...(q ? { nama: { contains: q } } : {})
+        ...(q ? { nama: { contains: q, ...insensitiveFilter() } } : {})
       },
       include: {
         transaksi: { orderBy: { tanggal: "desc" } },
@@ -97,16 +99,7 @@ export default async function InvestasiPage({
       <div className="mb-5 flex flex-col md:flex-row gap-3 items-start md:items-center justify-between">
         <InvestasiForm templates={templates.map((t) => ({ id: t.id, nama: t.nama }))} />
         
-        <form method="GET" className="flex items-center gap-2 w-full md:w-auto">
-          <input 
-            type="text" 
-            name="q" 
-            defaultValue={q} 
-            placeholder="Cari investasi..." 
-            className="form-input w-full md:w-64"
-          />
-          <button type="submit" className="btn-ghost px-3 py-1.5 text-[0.8rem]">Cari</button>
-        </form>
+        <SearchBox basePath="/investasi" initialValue={q} placeholder="Cari investasi..." />
       </div>
 
       {/* Investasi List */}
