@@ -16,7 +16,7 @@ export function UtangPiutangFilters({
   const router = useRouter();
   const [filters, setFilters] = useState({ jenis, status, q });
   const [isPending, startTransition] = useTransition();
-  const timer = useRef<ReturnType<typeof setTimeout>>();
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     setFilters({ jenis, status, q });
