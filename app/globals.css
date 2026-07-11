@@ -14,7 +14,7 @@
   --bg-border:     #1e2a45;
   --text-primary:  #e8edf5;
   --text-secondary:#94a3b8;
-  --text-muted:    #4b5e7a;
+  --text-muted:    #6b7e9c;
   --accent-gold:   #d4a843;
   --accent-gold-hover: #e8bc55;
   --accent-green:  #34d399;
@@ -80,6 +80,10 @@ input, select, textarea, button {
     background-color: var(--accent-gold-hover);
     box-shadow: 0 0 16px rgba(212, 168, 67, 0.2);
   }
+  .btn-primary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--bg-base), 0 0 0 4px rgba(212, 168, 67, 0.6);
+  }
 
   .btn-ghost {
     border: 1px solid var(--bg-border);
@@ -92,6 +96,10 @@ input, select, textarea, button {
     border-color: var(--text-secondary);
     background-color: rgba(255,255,255,0.03);
   }
+  .btn-ghost:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--bg-base), 0 0 0 4px rgba(148, 163, 184, 0.5);
+  }
 
   .btn-danger {
     border: 1px solid rgba(248, 113, 113, 0.3);
@@ -99,6 +107,10 @@ input, select, textarea, button {
     background-color: transparent;
     border-radius: var(--radius-md);
     transition: all 0.2s ease;
+  }
+  .btn-danger:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--bg-base), 0 0 0 4px rgba(248, 113, 113, 0.5);
   }
   .btn-danger:hover {
     background-color: var(--accent-red);

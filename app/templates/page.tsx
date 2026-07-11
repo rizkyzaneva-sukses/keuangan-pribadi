@@ -138,7 +138,7 @@ export default async function TemplatesPage() {
                     />
                     <TemplateArchiveButton templateId={t.id} archived />
                   </div>
-                  <div className="overflow-hidden rounded-md border border-[var(--bg-border)]">
+                  <div className="overflow-x-auto rounded-md border border-[var(--bg-border)]">
                     <table className="data-table">
                       <thead>
                         <tr>

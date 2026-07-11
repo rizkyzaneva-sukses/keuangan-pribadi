@@ -63,9 +63,9 @@ export default async function ZakatPage({
             {aggBelum._count} belum · {aggSebagian._count} cicilan
           </div>
         </div>
-        <div className="stat-card" style={{ borderColor: "rgba(248, 113, 113, 0.15)" }}>
-          <div className="stat-label" style={{ color: "var(--accent-red)" }}>Sedang Dicicil</div>
-          <div className="stat-value" style={{ color: "var(--accent-red)" }}>
+        <div className="stat-card" style={{ borderColor: "rgba(96, 165, 250, 0.2)" }}>
+          <div className="stat-label" style={{ color: "var(--accent-blue)" }}>Sudah Dicicil</div>
+          <div className="stat-value" style={{ color: "var(--accent-green)" }}>
             {formatRupiah(aggSebagian._count > 0 ? zakatSebagianRows.reduce((a, z) => a + z.sudahDibayar, 0) : 0)}
           </div>
           <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>
@@ -112,7 +112,7 @@ export default async function ZakatPage({
       />
 
       {/* Tabel */}
-      <div className="overflow-hidden rounded-lg border border-[var(--bg-border)] bg-[var(--bg-surface)]">
+      <div className="overflow-x-auto rounded-lg border border-[var(--bg-border)] bg-[var(--bg-surface)]">
         <table className="data-table">
           <thead>
             <tr>

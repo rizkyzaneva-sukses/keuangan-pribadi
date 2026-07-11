@@ -182,9 +182,13 @@ export function AppShell({
           </div>
           
           <div className="flex items-center gap-3">
-             <div className="text-[0.8rem] font-medium text-[var(--text-primary)] md:hidden">
-               {active.replace('/', '').charAt(0).toUpperCase() + active.slice(2)}
-             </div>
+              <div className="text-[0.8rem] font-medium text-[var(--text-primary)] md:hidden">
+                {active
+                  .split("/")
+                  .filter(Boolean)
+                  .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+                  .join(" ") || "Dashboard"}
+              </div>
              <div className="text-[0.7rem] font-medium px-2.5 py-1 rounded-full border border-[var(--bg-border)] text-[var(--text-muted)] hidden sm:block">
                {new Intl.DateTimeFormat('id-ID', { dateStyle: 'full' }).format(new Date())}
              </div>

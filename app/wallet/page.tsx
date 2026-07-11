@@ -58,7 +58,7 @@ export default async function WalletPage() {
       <div className="mt-6 mb-3 page-header">
         <h2 style={{ fontSize: "0.9rem" }}>Riwayat Penarikan</h2>
       </div>
-      <div className="overflow-hidden rounded-lg border border-[var(--bg-border)] bg-[var(--bg-surface)]">
+      <div className="overflow-x-auto rounded-lg border border-[var(--bg-border)] bg-[var(--bg-surface)]">
         <table className="data-table">
           <thead>
             <tr>

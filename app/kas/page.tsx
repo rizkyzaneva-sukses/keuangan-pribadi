@@ -93,7 +93,7 @@ export default async function KasPage({
         <button className="btn-primary px-3 py-1.5 text-[0.8rem]">Filter</button>
       </form>
 
-      <div className="overflow-hidden rounded-lg border border-[var(--bg-border)] bg-[var(--bg-surface)]">
+      <div className="overflow-x-auto rounded-lg border border-[var(--bg-border)] bg-[var(--bg-surface)]">
         <table className="data-table">
           <thead>
             <tr>
