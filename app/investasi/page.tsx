@@ -4,7 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { InvestasiEditForm, InvestasiForm, TrxForm } from "./Forms";
 import { OverrideForm } from "./OverrideForm";
-import { BuktiThumb } from "@/components/Bukti";
+import { BuktiField } from "@/components/Bukti";
 import { SearchBox } from "@/components/SearchBox";
 import { insensitiveFilter } from "@/lib/search";
 
@@ -232,11 +232,7 @@ export default async function InvestasiPage({
                                {formatRupiah(t.total)}
                              </td>
                              <td className="text-center">
-                               {t.buktiPath ? (
-                                 <BuktiThumb path={t.buktiPath} />
-                               ) : (
-                                 <span style={{ color: "var(--text-muted)" }}>–</span>
-                               )}
+                               <BuktiField tipe="TrxInvestasi" id={t.id} buktiPath={t.buktiPath} />
                              </td>
                              <td className="text-center">
                               {t.sudahDialokasikan ? (

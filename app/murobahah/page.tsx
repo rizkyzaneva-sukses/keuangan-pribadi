@@ -5,7 +5,7 @@ import { formatRupiah, formatTanggal } from "@/lib/format";
 import { MurobahahEditForm, MurobahahForm, ImbalHasilForm } from "./Forms";
 import { SearchBox } from "@/components/SearchBox";
 import { insensitiveFilter } from "@/lib/search";
-import { BuktiThumb } from "@/components/Bukti";
+import { BuktiField } from "@/components/Bukti";
 
 export default async function MurobahahPage({
   searchParams,
@@ -89,7 +89,7 @@ export default async function MurobahahPage({
                         }}
                         templates={templates}
                       />
-                      {m.buktiPath && <BuktiThumb path={m.buktiPath} size={16} />}
+                      <BuktiField tipe="Murobahah" id={m.id} buktiPath={m.buktiPath} size={16} />
                     </div>
                   </div>
                   <div className="text-right text-[0.8rem] space-y-0.5">
@@ -137,7 +137,7 @@ export default async function MurobahahPage({
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {i.buktiPath && <BuktiThumb path={i.buktiPath} size={14} />}
+                          <BuktiField tipe="ImbalHasilDiterima" id={i.id} buktiPath={i.buktiPath} size={14} />
                           <span className="font-medium" style={{ color: "var(--accent-green)" }}>
                             {formatRupiah(i.pokokDiterima + i.jumlah)}
                           </span>
