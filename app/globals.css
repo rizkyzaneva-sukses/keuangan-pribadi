@@ -250,4 +250,32 @@ input, select, textarea, button {
     color: var(--text-muted);
     margin-top: 0.125rem;
   }
+
+  /* ─── Horizontal scroll container for tables on small screens ─── */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ─── Notch / safe-area helpers ─── */
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+}
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body { overflow-x: hidden; }
+  img { max-width: 100%; height: auto; display: block; }
+}
+
+/* Larger tap targets on phones (Xiaomi 13T ≈ 393px) */
+@media (max-width: 640px) {
+  .btn-primary, .btn-ghost, .btn-danger {
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+  }
+  .form-input {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+  }
 }

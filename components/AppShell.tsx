@@ -90,7 +90,7 @@ export function AppShell({
   const sidebarWidth = isCollapsed ? "w-16" : "w-56";
 
   return (
-    <div className="flex min-h-screen w-full bg-[var(--bg-base)]">
+    <div className="flex min-h-[100dvh] w-full bg-[var(--bg-base)]">
       {/* Mobile Overlay */}
       {isMobileOpen && (
         <div 
@@ -161,7 +161,7 @@ export function AppShell({
       </aside>
       
       {/* Main Content Area */}
-      <main className={`flex-1 flex flex-col w-full transition-all duration-300 ease-in-out ${isCollapsed ? 'md:ml-16' : 'md:ml-56'}`}>
+      <main className={`flex-1 flex flex-col w-full min-w-0 transition-all duration-300 ease-in-out ${isCollapsed ? 'md:ml-16' : 'md:ml-56'}`}>
         {/* Top Header */}
         <header className="sticky top-0 z-30 flex items-center justify-between px-4 py-2.5 bg-[var(--bg-base)]/90 backdrop-blur-md border-b border-[var(--bg-border)] min-h-[56px]">
           <div className="flex items-center gap-2">
@@ -192,7 +192,7 @@ export function AppShell({
         </header>
 
         {/* Page Content */}
-        <div className="p-4 md:p-6 mx-auto max-w-6xl w-full">
+        <div className="p-4 md:p-6 mx-auto max-w-6xl w-full min-w-0">
           {children}
         </div>
       </main>
