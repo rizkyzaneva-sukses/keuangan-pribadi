@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { InvestasiEditForm, InvestasiForm, TrxForm } from "./Forms";
 import { OverrideForm } from "./OverrideForm";
+import { BuktiThumb } from "@/components/Bukti";
 
 export default async function InvestasiPage({
   searchParams,
@@ -210,8 +211,8 @@ export default async function InvestasiPage({
                     <table className="data-table">
                       <thead>
                         <tr>
-                          {["Tanggal", "Arah", "Kategori", "Principal", "Profit", "Total", "✓"].map((h) => (
-                            <th key={h} className={h === "✓" ? "text-center" : ""}>{h}</th>
+                          {["Tanggal", "Arah", "Kategori", "Principal", "Profit", "Total", "Bukti", "✓"].map((h) => (
+                            <th key={h} className={h === "✓" || h === "Bukti" ? "text-center" : ""}>{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -228,9 +229,16 @@ export default async function InvestasiPage({
                             <td>{formatRupiah(t.principal)}</td>
                             <td style={{ color: "var(--accent-green)" }}>{formatRupiah(t.profit)}</td>
                             <td className="font-semibold" style={{ color: "var(--text-primary)" }}>
-                              {formatRupiah(t.total)}
-                            </td>
-                            <td className="text-center">
+                               {formatRupiah(t.total)}
+                             </td>
+                             <td className="text-center">
+                               {t.buktiPath ? (
+                                 <BuktiThumb path={t.buktiPath} />
+                               ) : (
+                                 <span style={{ color: "var(--text-muted)" }}>–</span>
+                               )}
+                             </td>
+                             <td className="text-center">
                               {t.sudahDialokasikan ? (
                                 <span style={{ color: "var(--accent-green)" }}>✓</span>
                               ) : (

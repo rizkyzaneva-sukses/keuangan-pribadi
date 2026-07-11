@@ -1,8 +1,92 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useRef, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { formatRupiah, formatTanggal } from "@/lib/format";
+
+export function UtangPiutangFilters({
+  jenis,
+  status,
+  q,
+}: {
+  jenis: string;
+  status: string;
+  q: string;
+}) {
+  const router = useRouter();
+  const [filters, setFilters] = useState({ jenis, status, q });
+  const [isPending, startTransition] = useTransition();
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    setFilters({ jenis, status, q });
+  }, [jenis, status, q]);
+
+  const apply = (next: { jenis: string; status: string; q: string }) => {
+    const params = new URLSearchParams();
+    if (next.jenis) params.set("jenis", next.jenis);
+    if (next.status) params.set("status", next.status);
+    if (next.q) params.set("q", next.q);
+    const qs = params.toString();
+    startTransition(() => {
+      router.push(qs ? `/utang-piutang?${qs}` : "/utang-piutang");
+    });
+  };
+
+  const onSelect = (key: "jenis" | "status", value: string) => {
+    const next = { ...filters, [key]: value };
+    setFilters(next);
+    apply(next);
+  };
+
+  const onQChange = (value: string) => {
+    setFilters((prev) => ({ ...prev, q: value }));
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      apply({ ...filters, q: value });
+    }, 400);
+  };
+
+  return (
+    <form
+      method="GET"
+      className={`flex flex-wrap items-center gap-2 w-full md:w-auto ${isPending ? "opacity-60" : ""}`}
+      onSubmit={(e) => e.preventDefault()}
+    >
+      <select
+        name="jenis"
+        value={filters.jenis}
+        onChange={(e) => onSelect("jenis", e.target.value)}
+        className="form-input"
+        style={{ width: "auto" }}
+      >
+        <option value="">Semua jenis</option>
+        <option value="UTANG">Utang</option>
+        <option value="PIUTANG">Piutang</option>
+      </select>
+      <select
+        name="status"
+        value={filters.status}
+        onChange={(e) => onSelect("status", e.target.value)}
+        className="form-input"
+        style={{ width: "auto" }}
+      >
+        <option value="">Semua status</option>
+        <option value="BELUM">BELUM</option>
+        <option value="SEBAGIAN">SEBAGIAN</option>
+        <option value="LUNAS">LUNAS</option>
+      </select>
+      <input
+        type="text"
+        name="q"
+        value={filters.q}
+        onChange={(e) => onQChange(e.target.value)}
+        placeholder="Cari nama pihak..."
+        className="form-input w-full md:w-56"
+      />
+    </form>
+  );
+}
 
 export function UtangPiutangForm() {
   const router = useRouter();

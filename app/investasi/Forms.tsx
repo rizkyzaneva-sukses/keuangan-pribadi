@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { PencilLine } from "lucide-react";
+import { BuktiUpload } from "@/components/Bukti";
 
 const TIPE = ["BISNIS", "TEMAN", "MUROBAHAH"] as const;
 
@@ -297,6 +298,7 @@ export function TrxForm({ investasiId }: { investasiId: number }) {
   const [metodeBayar, setMetodeBayar] = useState("");
   const [akun, setAkun] = useState("");
   const [catatan, setCatatan] = useState("");
+  const [buktiPath, setBuktiPath] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -320,6 +322,7 @@ export function TrxForm({ investasiId }: { investasiId: number }) {
           metodeBayar,
           akun,
           catatan,
+          buktiPath,
         }),
       });
       if (!res.ok) {
@@ -400,6 +403,9 @@ export function TrxForm({ investasiId }: { investasiId: number }) {
         <input value={metodeBayar} onChange={(e) => setMetodeBayar(e.target.value)} placeholder="Metode bayar" className="form-input" />
         <input value={akun} onChange={(e) => setAkun(e.target.value)} placeholder="Akun" className="form-input" />
         <input value={catatan} onChange={(e) => setCatatan(e.target.value)} placeholder="Catatan" className="form-input" />
+      </div>
+      <div className="mt-1">
+        <BuktiUpload value={buktiPath} onChange={setBuktiPath} label="Bukti TF" />
       </div>
       {error && (
         <p className="mt-2 text-[0.75rem]" style={{ color: "var(--accent-red)" }}>{error}</p>

@@ -40,31 +40,22 @@ export function AppShell({
   user: { nama?: string | null; email: string };
   active: string;
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.innerWidth >= 768 &&
-      window.innerWidth < 1024,
-  );
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      setIsMounted(true);
-    });
-    // Auto-collapse on smaller desktop screens
-    const handleResize = () => {
+    // Auto-collapse on smaller desktop screens (deterministic default avoids blink on navigation)
+    const applyCollapse = () => {
       if (window.innerWidth >= 768 && window.innerWidth < 1024) {
         setIsCollapsed(true);
       } else if (window.innerWidth >= 1024) {
         setIsCollapsed(false);
       }
     };
-    window.addEventListener('resize', handleResize);
+    applyCollapse();
+    window.addEventListener('resize', applyCollapse);
     return () => {
-      window.cancelAnimationFrame(frame);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', applyCollapse);
     };
   }, []);
 
@@ -98,11 +89,8 @@ export function AppShell({
 
   const sidebarWidth = isCollapsed ? "w-16" : "w-56";
 
-  // Prevent hydration mismatch: render always, hide with CSS until mounted
-  const visibilityClass = isMounted ? "" : "invisible";
-
   return (
-    <div className={`flex min-h-screen w-full bg-[var(--bg-base)] ${visibilityClass}`}>
+    <div className="flex min-h-screen w-full bg-[var(--bg-base)]">
       {/* Mobile Overlay */}
       {isMobileOpen && (
         <div 

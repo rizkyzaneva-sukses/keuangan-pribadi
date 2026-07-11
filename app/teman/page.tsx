@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { TemanEditForm, TemanForm, DevidenEditForm, DevidenForm } from "./Forms";
+import { BuktiThumb } from "@/components/Bukti";
 
 export default async function TemanPage({
   searchParams,
@@ -117,6 +118,7 @@ export default async function TemanPage({
                             <span style={{ color: "var(--text-secondary)" }}>{formatTanggal(d.tanggal)}</span>
                             <div className="flex items-center gap-2">
                               <span className="font-medium" style={{ color: "var(--accent-green)" }}>{formatRupiah(d.jumlah)}</span>
+                              {d.buktiPath && <BuktiThumb path={d.buktiPath} size={16} />}
                               <DevidenEditForm
                                 devidenId={d.id}
                                 initialTanggal={d.tanggal.toISOString().slice(0, 10)}

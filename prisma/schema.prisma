@@ -160,9 +160,10 @@ model TrxInvestasi {
   principal         Int                       @default(0)
   profit            Int                       @default(0)
   total             Int
-  metodeBayar       String?
+        metodeBayar       String?
   akun              String?
   catatan           String?
+  buktiPath         String?
   sudahDialokasikan Boolean                   @default(false)
   sudahDizakati     Boolean                   @default(false)
   createdAt         DateTime                  @default(now())
@@ -337,6 +338,7 @@ model Deviden {
   template       TemplateAlokasi? @relation(fields: [templateId], references: [id], onDelete: SetNull)
   zakat          Zakat[]
   alokasiLog     AlokasiLog[]
+  buktiPath      String?
 
   @@index([investasiTemanId, tanggal])
   @@index([templateId])

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { PencilLine } from "lucide-react";
+import { BuktiUpload } from "@/components/Bukti";
 
 type TemplateOption = { id: number; nama: string; archivedAt?: Date | null };
 
@@ -223,6 +224,7 @@ export function DevidenForm({ investasiTemanId }: { investasiTemanId: number }) 
   const [open, setOpen] = useState(false);
   const [tanggal, setTanggal] = useState(new Date().toISOString().slice(0, 10));
   const [jumlah, setJumlah] = useState(0);
+  const [buktiPath, setBuktiPath] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -232,7 +234,7 @@ export function DevidenForm({ investasiTemanId }: { investasiTemanId: number }) 
       const res = await fetch("/api/deviden", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ investasiTemanId, tanggal, jumlah }),
+        body: JSON.stringify({ investasiTemanId, tanggal, jumlah, buktiPath }),
       });
       if (!res.ok) {
         setError(await res.text());
@@ -287,6 +289,9 @@ export function DevidenForm({ investasiTemanId }: { investasiTemanId: number }) 
         >
           ✕
         </button>
+      </div>
+      <div className="w-full">
+        <BuktiUpload value={buktiPath} onChange={setBuktiPath} label="Bukti TF" />
       </div>
       <p className="mt-2 text-[0.72rem]" style={{ color: "var(--text-muted)" }}>
         Deviden yang dialokasikan ke pos adalah 97.5% setelah dipotong zakat 2.5%.

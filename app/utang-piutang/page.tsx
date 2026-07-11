@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
-import { PembayaranUtangPiutangButton, UtangPiutangForm } from "./Forms";
+import { PembayaranUtangPiutangButton, UtangPiutangForm, UtangPiutangFilters } from "./Forms";
 import type { Prisma } from "@prisma/client";
 
 export default async function UtangPiutangPage({
@@ -62,27 +62,11 @@ export default async function UtangPiutangPage({
 
       <div className="flex flex-col md:flex-row gap-3 items-start md:items-center justify-between">
         <UtangPiutangForm />
-        <form method="GET" className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          <select name="jenis" defaultValue={sp.jenis || ""} className="form-input" style={{ width: "auto" }}>
-            <option value="">Semua jenis</option>
-            <option value="UTANG">Utang</option>
-            <option value="PIUTANG">Piutang</option>
-          </select>
-          <select name="status" defaultValue={sp.status || ""} className="form-input" style={{ width: "auto" }}>
-            <option value="">Semua status</option>
-            <option value="BELUM">BELUM</option>
-            <option value="SEBAGIAN">SEBAGIAN</option>
-            <option value="LUNAS">LUNAS</option>
-          </select>
-          <input
-            type="text"
-            name="q"
-            defaultValue={sp.q || ""}
-            placeholder="Cari nama pihak..."
-            className="form-input w-full md:w-56"
-          />
-          <button type="submit" className="btn-primary px-3 py-1.5 text-[0.8rem]">Filter</button>
-        </form>
+        <UtangPiutangFilters
+          jenis={sp.jenis || ""}
+          status={sp.status || ""}
+          q={sp.q || ""}
+        />
       </div>
 
       <div className="mt-6 space-y-3">
@@ -91,6 +75,7 @@ export default async function UtangPiutangPage({
         ) : (
           items.map((item) => {
             const sisa = item.jumlah - item.sudahDibayar;
+            const pct = item.jumlah > 0 ? Math.round((item.sudahDibayar / item.jumlah) * 100) : 0;
             return (
               <div key={item.id} className="card">
                 <div className="mb-2.5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -116,15 +101,37 @@ export default async function UtangPiutangPage({
                       </p>
                     )}
                   </div>
-                  <div className="text-right">
+                  <div className="text-right shrink-0">
                     <div className="section-title !mb-0.5">Total</div>
-                    <div className="text-[0.9rem] font-bold" style={{ color: "var(--accent-blue)" }}>{formatRupiah(item.jumlah)}</div>
-                    <div className="mt-1 text-[0.75rem]" style={{ color: "var(--text-muted)" }}>
-                      Terbayar {formatRupiah(item.sudahDibayar)} · Sisa {formatRupiah(sisa)}
-                    </div>
+                    <div className="text-[0.95rem] font-bold" style={{ color: "var(--accent-blue)" }}>{formatRupiah(item.jumlah)}</div>
                   </div>
                 </div>
-                <div className="flex items-start justify-between gap-3">
+
+                <div
+                  style={{
+                    height: "6px",
+                    borderRadius: "9999px",
+                    backgroundColor: "var(--bg-border)",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "100%",
+                      width: `${pct}%`,
+                      borderRadius: "9999px",
+                      backgroundColor: pct === 100 ? "var(--accent-green)" : "var(--accent-gold)",
+                      transition: "width 300ms ease",
+                    }}
+                  />
+                </div>
+                <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[0.75rem] font-medium">
+                  <span style={{ color: "var(--accent-green)" }}>Terbayar {formatRupiah(item.sudahDibayar)}</span>
+                  <span style={{ color: "var(--text-primary)" }}>{pct}%</span>
+                  <span style={{ color: "var(--accent-red)" }}>Sisa {formatRupiah(sisa)}</span>
+                </div>
+
+                <div className="mt-3 flex items-start justify-between gap-3">
                   <div className="text-[0.75rem]" style={{ color: "var(--text-muted)" }}>
                     {item.pembayaran.length} transaksi cicilan
                   </div>
