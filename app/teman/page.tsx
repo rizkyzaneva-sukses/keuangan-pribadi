@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { TemanEditForm, TemanForm, DevidenEditForm, DevidenForm } from "./Forms";
 import { BuktiField } from "@/components/Bukti";
+import { DokumenList, type DokumenItem } from "@/components/Dokumen";
 import { SearchBox } from "@/components/SearchBox";
 import { insensitiveFilter } from "@/lib/search";
 
@@ -34,6 +35,17 @@ export default async function TemanPage({
       orderBy: [{ archivedAt: "asc" }, { isDefault: "desc" }, { createdAt: "asc" }],
     }),
   ]);
+
+  const dokumenList = await db.dokumen.findMany({
+    where: { userId, tipe: "INVESTASI_TEMAN", refId: { in: teman.map((t) => t.id) } },
+    orderBy: { createdAt: "desc" },
+  });
+  const dokumenByTeman = new Map<number, DokumenItem[]>();
+  for (const d of dokumenList) {
+    const arr = dokumenByTeman.get(d.refId) ?? [];
+    arr.push(d as DokumenItem);
+    dokumenByTeman.set(d.refId, arr);
+  }
 
   return (
     <AppShell user={user || { email }} active="/teman">
@@ -123,6 +135,7 @@ export default async function TemanPage({
                     </div>
                   </div>
                 )}
+                <DokumenList tipe="INVESTASI_TEMAN" refId={t.id} docs={dokumenByTeman.get(t.id) || []} />
               </div>
             );
           })

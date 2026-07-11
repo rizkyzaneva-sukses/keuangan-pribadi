@@ -525,3 +525,21 @@ model PembayaranUtangPiutang {
   @@index([utangPiutangId])
   @@index([userId, tanggal])
 }
+
+model Dokumen {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  tipe          String   // INVESTASI_TEMAN | INVESTASI | MUROBAHAH
+  refId         Int
+  nama          String
+  jenis         String   @default("LAINNYA") // PERJANJIAN | LAINNYA
+  filePath      String
+  originalName  String?
+  mime          String?
+  size          Int?
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, tipe, refId])
+}

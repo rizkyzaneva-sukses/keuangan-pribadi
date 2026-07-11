@@ -6,6 +6,7 @@ import { MurobahahEditForm, MurobahahForm, ImbalHasilForm } from "./Forms";
 import { SearchBox } from "@/components/SearchBox";
 import { insensitiveFilter } from "@/lib/search";
 import { BuktiField } from "@/components/Bukti";
+import { DokumenList, type DokumenItem } from "@/components/Dokumen";
 
 export default async function MurobahahPage({
   searchParams,
@@ -34,6 +35,17 @@ export default async function MurobahahPage({
       orderBy: [{ archivedAt: "asc" }, { isDefault: "desc" }, { createdAt: "asc" }],
     }),
   ]);
+
+  const dokumenList = await db.dokumen.findMany({
+    where: { userId, tipe: "MUROBAHAH", refId: { in: list.map((m) => m.id) } },
+    orderBy: { createdAt: "desc" },
+  });
+  const dokumenByMurobahah = new Map<number, DokumenItem[]>();
+  for (const d of dokumenList) {
+    const arr = dokumenByMurobahah.get(d.refId) ?? [];
+    arr.push(d as DokumenItem);
+    dokumenByMurobahah.set(d.refId, arr);
+  }
 
   return (
     <AppShell user={user || { email }} active="/murobahah">

@@ -5,6 +5,7 @@ import { formatRupiah, formatTanggal } from "@/lib/format";
 import { InvestasiEditForm, InvestasiForm, TrxForm } from "./Forms";
 import { OverrideForm } from "./OverrideForm";
 import { BuktiField } from "@/components/Bukti";
+import { DokumenList, type DokumenItem } from "@/components/Dokumen";
 import { SearchBox } from "@/components/SearchBox";
 import { insensitiveFilter } from "@/lib/search";
 
@@ -41,8 +42,16 @@ export default async function InvestasiPage({
     }),
   ]);
 
-  const metodeBayarOptions = [...new Set(riwayatBayar.map((t) => t.metodeBayar).filter((v): v is string => !!v))].sort();
-  const akunOptions = [...new Set(riwayatBayar.map((t) => t.akun).filter((v): v is string => !!v))].sort();
+  const dokumenList = await db.dokumen.findMany({
+    where: { userId, tipe: "INVESTASI", refId: { in: investasi.map((i) => i.id) } },
+    orderBy: { createdAt: "desc" },
+  });
+  const dokumenByInvestasi = new Map<number, DokumenItem[]>();
+  for (const d of dokumenList) {
+    const arr = dokumenByInvestasi.get(d.refId) ?? [];
+    arr.push(d as DokumenItem);
+    dokumenByInvestasi.set(d.refId, arr);
+  }
 
   const totalModal = investasi.reduce((sum, inv) => {
     return (
@@ -239,7 +248,8 @@ export default async function InvestasiPage({
                                 <span style={{ color: "var(--accent-green)" }}>✓</span>
                               ) : (
                                 <span style={{ color: "var(--text-muted)" }}>–</span>
-                              )}
+                )}
+                <DokumenList tipe="INVESTASI" refId={inv.id} docs={dokumenByInvestasi.get(inv.id) || []} />
                             </td>
                           </tr>
                         ))}
