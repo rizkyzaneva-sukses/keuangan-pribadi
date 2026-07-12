@@ -1,2 +1,0 @@
-ALTER TABLE "ImbalHasilDiterima"
-ADD COLUMN "pokokDiterima" INTEGER NOT NULL DEFAULT 0;
