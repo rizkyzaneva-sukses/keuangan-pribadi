@@ -132,6 +132,8 @@ export default async function TemanPage({
                               <DevidenEditForm
                                 devidenId={d.id}
                                 initialTanggal={d.tanggal.toISOString().slice(0, 10)}
+                                initialJumlah={d.jumlah}
+                                initialBuktiPath={d.buktiPath ?? null}
                               />
                             </div>
                           </div>

@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
-import { InvestasiEditForm, InvestasiForm, TrxForm } from "./Forms";
+import { InvestasiEditForm, InvestasiForm, TrxForm, TrxEditForm } from "./Forms";
 import { OverrideForm } from "./OverrideForm";
 import { BuktiField } from "@/components/Bukti";
 import { DokumenList, type DokumenItem } from "@/components/Dokumen";
@@ -228,8 +228,8 @@ export default async function InvestasiPage({
                     <table className="data-table">
                       <thead>
                         <tr>
-                          {["Tanggal", "Arah", "Kategori", "Principal", "Profit", "Total", "Bukti", "✓"].map((h) => (
-                            <th key={h} className={h === "✓" || h === "Bukti" ? "text-center" : ""}>{h}</th>
+                          {["Tanggal", "Arah", "Kategori", "Principal", "Profit", "Total", "Bukti", "✓", ""].map((h, i) => (
+                            <th key={i} className={h === "✓" || h === "Bukti" ? "text-center" : ""}>{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -257,6 +257,25 @@ export default async function InvestasiPage({
                               ) : (
                                 <span style={{ color: "var(--text-muted)" }}>–</span>
                               )}
+                            </td>
+                            <td className="text-center">
+                              <TrxEditForm
+                                trxId={t.id}
+                                initial={{
+                                  tanggal: t.tanggal.toISOString().slice(0, 10),
+                                  arah: t.arah as "IN" | "OUT",
+                                  kategori: t.kategori,
+                                  principal: t.principal,
+                                  profit: t.profit,
+                                  total: t.total,
+                                  metodeBayar: t.metodeBayar ?? "",
+                                  akun: t.akun ?? "",
+                                  catatan: t.catatan ?? "",
+                                  buktiPath: t.buktiPath ?? null,
+                                }}
+                                metodeBayarOptions={metodeBayarOptions}
+                                akunOptions={akunOptions}
+                              />
                             </td>
                           </tr>
                         ))}

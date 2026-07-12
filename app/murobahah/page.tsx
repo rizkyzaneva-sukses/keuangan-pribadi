@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
-import { MurobahahEditForm, MurobahahForm, ImbalHasilForm } from "./Forms";
+import { MurobahahEditForm, MurobahahForm, ImbalHasilForm, ImbalHasilEditForm } from "./Forms";
 import { SearchBox } from "@/components/SearchBox";
 import { insensitiveFilter } from "@/lib/search";
 import { BuktiField } from "@/components/Bukti";
@@ -144,20 +144,31 @@ export default async function MurobahahPage({
                       {m.imbalHasilDiterima.map((i) => (
                       <div
                         key={i.id}
-                        className="flex justify-between rounded-md px-2.5 py-1.5 text-[0.8rem]"
+                        className="rounded-md px-2.5 py-1.5 text-[0.8rem]"
                         style={{ border: "1px solid var(--bg-border)" }}
                       >
-                        <div>
-                          <div style={{ color: "var(--text-secondary)" }}>{formatTanggal(i.tanggal)}</div>
-                          <div className="text-[0.72rem]" style={{ color: "var(--text-muted)" }}>
-                            Pokok {formatRupiah(i.pokokDiterima)} + Imbal {formatRupiah(i.jumlah)}
+                        <div className="flex items-center justify-between gap-2">
+                          <div>
+                            <div style={{ color: "var(--text-secondary)" }}>{formatTanggal(i.tanggal)}</div>
+                            <div className="text-[0.72rem]" style={{ color: "var(--text-muted)" }}>
+                              Pokok {formatRupiah(i.pokokDiterima)} + Imbal {formatRupiah(i.jumlah)}
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <BuktiField tipe="ImbalHasilDiterima" id={i.id} buktiPath={i.buktiPath} size={14} />
-                          <span className="font-medium" style={{ color: "var(--accent-green)" }}>
-                            {formatRupiah(i.pokokDiterima + i.jumlah)}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <BuktiField tipe="ImbalHasilDiterima" id={i.id} buktiPath={i.buktiPath} size={14} />
+                            <span className="font-medium" style={{ color: "var(--accent-green)" }}>
+                              {formatRupiah(i.pokokDiterima + i.jumlah)}
+                            </span>
+                            <ImbalHasilEditForm
+                              imbalId={i.id}
+                              initial={{
+                                tanggal: i.tanggal.toISOString().slice(0, 10),
+                                pokokDiterima: i.pokokDiterima,
+                                jumlah: i.jumlah,
+                                buktiPath: i.buktiPath ?? null,
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
                     ))}

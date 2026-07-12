@@ -304,13 +304,19 @@ export function DevidenForm({ investasiTemanId }: { investasiTemanId: number }) 
 export function DevidenEditForm({
   devidenId,
   initialTanggal,
+  initialJumlah,
+  initialBuktiPath,
 }: {
   devidenId: number;
   initialTanggal: string;
+  initialJumlah: number;
+  initialBuktiPath: string | null;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [tanggal, setTanggal] = useState(initialTanggal);
+  const [jumlah, setJumlah] = useState(initialJumlah);
+  const [buktiPath, setBuktiPath] = useState<string | null>(initialBuktiPath);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -320,11 +326,11 @@ export function DevidenEditForm({
       const res = await fetch(`/api/deviden/${devidenId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tanggal }),
+        body: JSON.stringify({ tanggal, jumlah, buktiPath }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => null);
-        setError(body?.message || "Gagal mengubah tanggal deviden");
+        setError(body?.message || "Gagal mengubah deviden");
         return;
       }
       setOpen(false);
@@ -347,13 +353,21 @@ export function DevidenEditForm({
   return (
     <div className="rounded-md p-2.5" style={{ border: "1px solid var(--bg-border)", backgroundColor: "var(--bg-elevated)" }}>
       <div className="mb-2 text-[0.75rem]" style={{ color: "var(--text-secondary)" }}>
-        Ubah tanggal deviden
+        Edit deviden
       </div>
       <div className="flex flex-wrap gap-2">
         <input
           type="date"
           value={tanggal}
           onChange={(e) => setTanggal(e.target.value)}
+          className="form-input"
+          style={{ width: "auto" }}
+        />
+        <input
+          type="number"
+          value={jumlah}
+          onChange={(e) => setJumlah(Number(e.target.value))}
+          placeholder="Jumlah deviden"
           className="form-input"
           style={{ width: "auto" }}
         />
@@ -369,6 +383,8 @@ export function DevidenEditForm({
           type="button"
           onClick={() => {
             setTanggal(initialTanggal);
+            setJumlah(initialJumlah);
+            setBuktiPath(initialBuktiPath);
             setError("");
             setOpen(false);
           }}
@@ -377,7 +393,10 @@ export function DevidenEditForm({
           Batal
         </button>
       </div>
-      {error && <p className="mt-2 text-[0.75rem]" style={{ color: "var(--accent-red)" }}>{error}</p>}
+      <div className="w-full mt-1">
+        <BuktiUpload value={buktiPath} onChange={setBuktiPath} label="Bukti TF" />
+      </div>
+      {error && <p className="mt-2 text-[0.72rem]" style={{ color: "var(--accent-red)" }}>{error}</p>}
     </div>
   );
 }

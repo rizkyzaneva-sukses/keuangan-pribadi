@@ -458,3 +458,172 @@ export function TrxForm({
     </div>
   );
 }
+
+export function TrxEditForm({
+  trxId,
+  initial,
+  metodeBayarOptions,
+  akunOptions,
+}: {
+  trxId: number;
+  initial: {
+    tanggal: string;
+    arah: "IN" | "OUT";
+    kategori: string;
+    principal: number;
+    profit: number;
+    total: number;
+    metodeBayar: string;
+    akun: string;
+    catatan: string;
+    buktiPath: string | null;
+  };
+  metodeBayarOptions: string[];
+  akunOptions: string[];
+}) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [tanggal, setTanggal] = useState(initial.tanggal);
+  const [arah, setArah] = useState<"IN" | "OUT">(initial.arah);
+  const [kategori, setKategori] = useState(initial.kategori);
+  const [principal, setPrincipal] = useState(initial.principal);
+  const [profit, setProfit] = useState(initial.profit);
+  const [metodeBayar, setMetodeBayar] = useState(initial.metodeBayar);
+  const [akun, setAkun] = useState(initial.akun);
+  const [catatan, setCatatan] = useState(initial.catatan);
+  const [buktiPath, setBuktiPath] = useState<string | null>(initial.buktiPath);
+  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  const opts = arah === "IN" ? KAT_IN : KAT_OUT;
+  const total = principal + profit;
+
+  const submit = () => {
+    setError("");
+    startTransition(async () => {
+      const res = await fetch(`/api/trx-investasi/${trxId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tanggal,
+          arah,
+          kategori,
+          principal,
+          profit,
+          total,
+          metodeBayar,
+          akun,
+          catatan,
+          buktiPath,
+        }),
+      });
+      if (!res.ok) {
+        setError(await res.text());
+        return;
+      }
+      setOpen(false);
+      router.refresh();
+    });
+  };
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="btn-ghost px-2 py-0.5 text-[0.7rem]"
+      >
+        Edit
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-2 rounded-md p-2.5 text-[0.78rem]" style={{ border: "1px solid var(--bg-border)", backgroundColor: "var(--bg-elevated)" }}>
+      <div className="mb-2 flex items-center justify-between">
+        <div className="font-semibold" style={{ color: "var(--text-primary)" }}>Edit Transaksi</div>
+        <button onClick={() => setOpen(false)} className="text-[0.72rem]" style={{ color: "var(--text-muted)" }}>✕ Tutup</button>
+      </div>
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+        <input type="date" value={tanggal} onChange={(e) => setTanggal(e.target.value)} className="form-input" />
+        <select
+          value={arah}
+          onChange={(e) => {
+            const v = e.target.value as "IN" | "OUT";
+            setArah(v);
+            setKategori(v === "IN" ? KAT_IN[0] : KAT_OUT[0]);
+          }}
+          className="form-input"
+        >
+          <option value="IN">IN (Masuk)</option>
+          <option value="OUT">OUT (Keluar)</option>
+        </select>
+        <select value={kategori} onChange={(e) => setKategori(e.target.value)} className="form-input">
+          {opts.map((k) => (
+            <option key={k} value={k}>{k.replace(/_/g, " ")}</option>
+          ))}
+        </select>
+        <input
+          type="number"
+          value={principal || ""}
+          onChange={(e) => setPrincipal(Number(e.target.value))}
+          placeholder="Principal"
+          className="form-input"
+        />
+        <input
+          type="number"
+          value={profit || ""}
+          onChange={(e) => setProfit(Number(e.target.value))}
+          placeholder="Profit"
+          className="form-input"
+        />
+        <input
+          readOnly
+          value={total}
+          placeholder="Total (auto)"
+          className="form-input"
+          style={{ backgroundColor: "var(--bg-surface)", color: "var(--text-muted)", cursor: "default" }}
+        />
+        <input
+          value={metodeBayar}
+          onChange={(e) => setMetodeBayar(e.target.value)}
+          placeholder="Metode bayar"
+          list={`metode-bayar-edit-options-${trxId}`}
+          className="form-input"
+        />
+        <input
+          value={akun}
+          onChange={(e) => setAkun(e.target.value)}
+          placeholder="Akun"
+          list={`akun-edit-options-${trxId}`}
+          className="form-input"
+        />
+        <input value={catatan} onChange={(e) => setCatatan(e.target.value)} placeholder="Catatan" className="form-input" />
+        <datalist id={`metode-bayar-edit-options-${trxId}`}>
+          {metodeBayarOptions.map((m) => (
+            <option key={m} value={m} />
+          ))}
+        </datalist>
+        <datalist id={`akun-edit-options-${trxId}`}>
+          {akunOptions.map((a) => (
+            <option key={a} value={a} />
+          ))}
+        </datalist>
+      </div>
+      <div className="mt-1">
+        <BuktiUpload value={buktiPath} onChange={setBuktiPath} label="Bukti TF" />
+      </div>
+      {error && <p className="mt-1.5 text-[0.72rem]" style={{ color: "var(--accent-red)" }}>{error}</p>}
+      <div className="mt-2 flex gap-2">
+        <button
+          onClick={submit}
+          disabled={isPending}
+          className="btn-primary px-3 py-1.5 text-[0.8rem] font-medium disabled:opacity-50"
+        >
+          {isPending ? "Menyimpan..." : "Simpan"}
+        </button>
+        <button onClick={() => setOpen(false)} className="btn-ghost px-3 py-1.5 text-[0.8rem]">Batal</button>
+      </div>
+    </div>
+  );
+}

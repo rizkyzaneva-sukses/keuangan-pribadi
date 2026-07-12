@@ -375,3 +375,112 @@ export function ImbalHasilForm({ murobahahId }: { murobahahId: number }) {
     </div>
   );
 }
+
+export function ImbalHasilEditForm({
+  imbalId,
+  initial,
+}: {
+  imbalId: number;
+  initial: {
+    tanggal: string;
+    pokokDiterima: number;
+    jumlah: number;
+    buktiPath: string | null;
+  };
+}) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [tanggal, setTanggal] = useState(initial.tanggal);
+  const [pokokDiterima, setPokokDiterima] = useState(initial.pokokDiterima);
+  const [jumlah, setJumlah] = useState(initial.jumlah);
+  const [buktiPath, setBuktiPath] = useState<string | null>(initial.buktiPath);
+  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  const submit = () => {
+    setError("");
+    startTransition(async () => {
+      const res = await fetch(`/api/imbal-hasil/${imbalId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tanggal, pokokDiterima, jumlah, buktiPath }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setError(body?.message || "Gagal mengubah imbal hasil");
+        return;
+      }
+      setOpen(false);
+      router.refresh();
+    });
+  };
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="btn-ghost px-2 py-0.5 text-[0.7rem]"
+      >
+        Edit
+      </button>
+    );
+  }
+
+  return (
+    <div className="rounded-md p-2.5" style={{ border: "1px solid var(--bg-border)", backgroundColor: "var(--bg-elevated)" }}>
+      <div className="mb-2 text-[0.75rem]" style={{ color: "var(--text-secondary)" }}>
+        Edit penerimaan
+      </div>
+      <div className="grid gap-2 md:grid-cols-[auto_1fr_1fr_auto_auto]">
+        <input
+          type="date"
+          value={tanggal}
+          onChange={(e) => setTanggal(e.target.value)}
+          className="form-input"
+          style={{ width: "auto" }}
+        />
+        <input
+          type="number"
+          value={pokokDiterima}
+          onChange={(e) => setPokokDiterima(Number(e.target.value))}
+          placeholder="Pokok diterima"
+          className="form-input"
+        />
+        <input
+          type="number"
+          value={jumlah}
+          onChange={(e) => setJumlah(Number(e.target.value))}
+          placeholder="Imbal diterima"
+          className="form-input"
+        />
+        <button
+          type="button"
+          onClick={submit}
+          disabled={isPending}
+          className="btn-primary px-3 py-1.5 text-[0.8rem] font-medium disabled:opacity-50"
+        >
+          {isPending ? "Menyimpan..." : "Simpan"}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setTanggal(initial.tanggal);
+            setPokokDiterima(initial.pokokDiterima);
+            setJumlah(initial.jumlah);
+            setBuktiPath(initial.buktiPath);
+            setError("");
+            setOpen(false);
+          }}
+          className="btn-ghost px-2.5 py-1.5 text-[0.8rem]"
+        >
+          Batal
+        </button>
+      </div>
+      <div className="w-full mt-1">
+        <BuktiUpload value={buktiPath} onChange={setBuktiPath} label="Bukti TF" />
+      </div>
+      {error && <p className="mt-1.5 text-[0.72rem]" style={{ color: "var(--accent-red)" }}>{error}</p>}
+    </div>
+  );
+}

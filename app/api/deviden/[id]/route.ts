@@ -22,21 +22,28 @@ export async function PUT(
 
     const body = await req.json().catch(() => ({}));
     const tanggal = body.tanggal ? new Date(body.tanggal) : null;
+    const jumlah = body.jumlah !== undefined ? Number(body.jumlah) : existing.jumlah;
+    const buktiPath = typeof body.buktiPath === "string" ? (body.buktiPath || null) : existing.buktiPath;
 
     if (!tanggal || Number.isNaN(tanggal.getTime())) {
       return NextResponse.json({ message: "Tanggal tidak valid" }, { status: 400 });
     }
 
+    if (jumlah <= 0) {
+      return NextResponse.json({ message: "Jumlah harus lebih dari 0" }, { status: 400 });
+    }
+
     const [updated] = await db.$transaction([
       db.deviden.update({
         where: { id: devidenId },
-        data: { tanggal },
+        data: { tanggal, jumlah, buktiPath },
       }),
       db.zakat.updateMany({
         where: { devidenId, userId },
         data: {
           tahun: tanggal.getFullYear(),
           tanggalWajib: tanggal,
+          jumlah: Math.round(jumlah * 0.025),
         },
       }),
     ]);
