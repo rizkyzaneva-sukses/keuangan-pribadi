@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { ArahTransaksiInvestasi, KategoriTransaksiInvestasi } from "@prisma/client";
 import { syncAlokasiInvestasi } from "@/lib/alokasiEngine";
 
 export async function PUT(
@@ -45,8 +46,8 @@ export async function PUT(
       where: { id: trxId },
       data: {
         tanggal,
-        arah,
-        kategori,
+        arah: arah as ArahTransaksiInvestasi,
+        kategori: kategori as KategoriTransaksiInvestasi,
         principal,
         profit,
         total,
