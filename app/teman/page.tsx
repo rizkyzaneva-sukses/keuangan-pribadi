@@ -169,8 +169,19 @@ export default async function TemanPage({
                         <span className="badge-muted">ARSIP</span>
                       </p>
                       {t.catatan && <p className="mt-0.5 text-[0.75rem]" style={{ color: "var(--text-secondary)" }}>{t.catatan}</p>}
-                      <div className="mt-1">
+                      <div className="mt-1 flex items-center gap-2 flex-wrap">
                         <ArchiveButton apiPath={`/api/teman/${t.id}`} archived />
+                        <TemanEditForm
+                          investasiTemanId={t.id}
+                          initial={{
+                            namaTeman: t.namaTeman,
+                            modal: t.modal,
+                            tanggalMulai: t.tanggalMulai.toISOString().slice(0, 10),
+                            catatan: t.catatan ?? "",
+                            templateId: t.template?.id ?? null,
+                          }}
+                          templates={templates}
+                        />
                       </div>
                     </div>
                     <div className="text-right">

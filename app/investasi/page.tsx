@@ -310,8 +310,19 @@ export default async function InvestasiPage({
                       {inv.catatan && (
                         <p className="text-[0.7rem] mt-0.5" style={{ color: "var(--text-secondary)" }}>{inv.catatan}</p>
                       )}
-                      <div className="mt-1">
+                      <div className="mt-1 flex items-center gap-2 flex-wrap">
                         <ArchiveButton apiPath={`/api/investasi/${inv.id}`} archived />
+                        <InvestasiEditForm
+                          investasiId={inv.id}
+                          initial={{
+                            nama: inv.nama,
+                            partner: inv.partner ?? "",
+                            tipe: inv.tipe,
+                            catatan: inv.catatan ?? "",
+                            templateId: inv.templateAssignment?.template.id ?? null,
+                          }}
+                          templates={templates.map((t) => ({ id: t.id, nama: t.nama }))}
+                        />
                       </div>
                     </div>
                     <div className="flex gap-3 text-right shrink-0">

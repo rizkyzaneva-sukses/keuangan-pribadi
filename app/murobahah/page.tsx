@@ -196,8 +196,21 @@ export default async function MurobahahPage({
                         <span className="badge-muted">ARSIP</span>
                       </p>
                       {m.catatan && <p className="mt-0.5 text-[0.75rem]" style={{ color: "var(--text-secondary)" }}>{m.catatan}</p>}
-                      <div className="mt-1">
+                      <div className="mt-1 flex items-center gap-2 flex-wrap">
                         <ArchiveButton apiPath={`/api/murobahah/${m.id}`} archived />
+                        <MurobahahEditForm
+                          murobahahId={m.id}
+                          initial={{
+                            namaPartner: m.namaPartner,
+                            pokok: m.pokok,
+                            totalImbalHasil: m.totalImbalHasil,
+                            tanggalMulai: m.tanggalMulai.toISOString().slice(0, 10),
+                            jatuhTempo: m.jatuhTempo.toISOString().slice(0, 10),
+                            catatan: m.catatan ?? "",
+                            templateId: m.template?.id ?? null,
+                          }}
+                          templates={templates}
+                        />
                       </div>
                     </div>
                     <div className="text-right text-[0.8rem] space-y-0.5">
