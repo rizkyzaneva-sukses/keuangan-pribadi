@@ -7,6 +7,7 @@ import { BuktiField } from "@/components/Bukti";
 import { DokumenList, type DokumenItem } from "@/components/Dokumen";
 import { SearchBox } from "@/components/SearchBox";
 import { insensitiveFilter } from "@/lib/search";
+import { ArchiveButton } from "@/components/ArchiveButton";
 
 export default async function TemanPage({
   searchParams,
@@ -47,6 +48,9 @@ export default async function TemanPage({
     dokumenByTeman.set(d.refId, arr);
   }
 
+  const activeTeman = teman.filter((t) => !t.archivedAt);
+  const archivedTeman = teman.filter((t) => t.archivedAt);
+
   return (
     <AppShell user={user || { email }} active="/teman">
       <div className="page-header mb-1">
@@ -63,10 +67,10 @@ export default async function TemanPage({
       </div>
 
       <div className="mt-6 space-y-3">
-        {teman.length === 0 ? (
+        {activeTeman.length === 0 ? (
           <p style={{ color: "var(--text-muted)" }} className="text-[0.8rem]">Belum ada investasi teman.</p>
         ) : (
-          teman.map((t) => {
+          activeTeman.map((t) => {
             const totalDeviden = t.deviden.reduce((s, d) => s + d.jumlah, 0);
             return (
               <div key={t.id} className="card">
@@ -95,6 +99,7 @@ export default async function TemanPage({
                         }}
                         templates={templates}
                       />
+                      <ArchiveButton apiPath={`/api/teman/${t.id}`} archived={false} />
                     </div>
                   </div>
                   <div className="text-right">
@@ -141,6 +146,48 @@ export default async function TemanPage({
           })
         )}
       </div>
+
+      {archivedTeman.length > 0 && (
+        <details className="mt-6 card">
+          <summary className="cursor-pointer list-none font-semibold text-[0.85rem]" style={{ color: "var(--text-primary)" }}>
+            Arsip ({archivedTeman.length})
+          </summary>
+          <div className="mt-4 space-y-3">
+            {archivedTeman.map((t) => {
+              const totalDeviden = t.deviden.reduce((s, d) => s + d.jumlah, 0);
+              return (
+                <div
+                  key={t.id}
+                  className="rounded-md border border-[var(--bg-border)] p-4"
+                  style={{ backgroundColor: "var(--bg-elevated)" }}
+                >
+                  <div className="mb-2.5 flex items-start justify-between">
+                    <div>
+                      <h3 className="text-[0.85rem] font-semibold" style={{ color: "var(--text-primary)" }}>{t.namaTeman}</h3>
+                      <p className="text-[0.75rem]" style={{ color: "var(--text-muted)" }}>
+                        Mulai {formatTanggal(t.tanggalMulai)} •{" "}
+                        <span className="badge-muted">ARSIP</span>
+                      </p>
+                      {t.catatan && <p className="mt-0.5 text-[0.75rem]" style={{ color: "var(--text-secondary)" }}>{t.catatan}</p>}
+                      <div className="mt-1">
+                        <ArchiveButton apiPath={`/api/teman/${t.id}`} archived />
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="section-title !mb-0.5">Modal</div>
+                      <div className="text-[0.9rem] font-bold" style={{ color: "var(--accent-blue)" }}>{formatRupiah(t.modal)}</div>
+                      <div className="section-title !mb-0.5 mt-1">Total Deviden</div>
+                      <div className="text-[0.8rem] font-semibold" style={{ color: "var(--accent-green)" }}>
+                        {formatRupiah(totalDeviden)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </details>
+      )}
     </AppShell>
   );
 }

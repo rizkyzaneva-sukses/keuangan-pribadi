@@ -8,6 +8,7 @@ import { BuktiField } from "@/components/Bukti";
 import { DokumenList, type DokumenItem } from "@/components/Dokumen";
 import { SearchBox } from "@/components/SearchBox";
 import { insensitiveFilter } from "@/lib/search";
+import { ArchiveButton } from "@/components/ArchiveButton";
 
 export default async function InvestasiPage({
   searchParams,
@@ -56,7 +57,10 @@ export default async function InvestasiPage({
     dokumenByInvestasi.set(d.refId, arr);
   }
 
-  const totalModal = investasi.reduce((sum, inv) => {
+  const activeInvestasi = investasi.filter((i) => !i.archivedAt);
+  const archivedInvestasi = investasi.filter((i) => i.archivedAt);
+
+  const totalModal = activeInvestasi.reduce((sum, inv) => {
     return (
       sum +
       inv.transaksi
@@ -65,7 +69,7 @@ export default async function InvestasiPage({
     );
   }, 0);
 
-  const totalReturn = investasi.reduce((sum, inv) => {
+  const totalReturn = activeInvestasi.reduce((sum, inv) => {
     return (
       sum +
       inv.transaksi
@@ -74,7 +78,7 @@ export default async function InvestasiPage({
     );
   }, 0);
 
-  const totalProfit = investasi.reduce((sum, inv) => {
+  const totalProfit = activeInvestasi.reduce((sum, inv) => {
     return (
       sum +
       inv.transaksi
@@ -83,7 +87,7 @@ export default async function InvestasiPage({
     );
   }, 0);
 
-  const aktifCount = investasi.filter((i) => i.status === "ACTIVE").length;
+  const aktifCount = activeInvestasi.filter((i) => i.status === "ACTIVE").length;
   const defaultTemplate = templates.find((t) => t.isDefault);
 
   return (
@@ -123,14 +127,14 @@ export default async function InvestasiPage({
 
       {/* Investasi List */}
       <div className="space-y-3">
-        {investasi.length === 0 ? (
+        {activeInvestasi.length === 0 ? (
           <div className="card text-center py-10">
             <div className="text-2xl mb-2">📈</div>
             <p className="text-[0.8rem] font-medium" style={{ color: "var(--text-secondary)" }}>Belum ada investasi.</p>
             <p className="text-[0.75rem] mt-0.5" style={{ color: "var(--text-muted)" }}>Klik &quot;+ Tambah Investasi&quot; untuk memulai.</p>
           </div>
         ) : (
-          investasi.map((inv) => {
+          activeInvestasi.map((inv) => {
             const totalIn = inv.transaksi
               .filter((t) => t.arah === "IN")
               .reduce((s, t) => s + t.total, 0);
@@ -183,6 +187,7 @@ export default async function InvestasiPage({
                         investasiId={inv.id}
                         investasiNama={inv.nama}
                       />
+                      <ArchiveButton apiPath={`/api/investasi/${inv.id}`} archived={false} />
                     </div>
                   </div>
 
@@ -266,6 +271,79 @@ export default async function InvestasiPage({
           })
         )}
       </div>
+
+      {archivedInvestasi.length > 0 && (
+        <details className="mt-6 card">
+          <summary className="cursor-pointer list-none font-semibold text-[0.85rem]" style={{ color: "var(--text-primary)" }}>
+            Arsip ({archivedInvestasi.length})
+          </summary>
+          <div className="mt-4 space-y-3">
+            {archivedInvestasi.map((inv) => {
+              const totalIn = inv.transaksi
+                .filter((t) => t.arah === "IN")
+                .reduce((s, t) => s + t.total, 0);
+              const totalOut = inv.transaksi
+                .filter((t) => t.arah === "OUT")
+                .reduce((s, t) => s + t.total, 0);
+              const profitBersih = totalIn - totalOut;
+
+              return (
+                <div
+                  key={inv.id}
+                  className="rounded-md border border-[var(--bg-border)] p-4"
+                  style={{ backgroundColor: "var(--bg-elevated)" }}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <h3 className="text-[0.85rem] font-semibold" style={{ color: "var(--text-primary)" }}>
+                          {inv.nama}
+                        </h3>
+                        <span className="badge-yellow">{inv.tipe}</span>
+                        <span className="badge-muted">ARSIP</span>
+                      </div>
+                      {inv.partner && (
+                        <p className="text-[0.7rem] mt-0.5" style={{ color: "var(--text-muted)" }}>
+                          Partner: {inv.partner}
+                        </p>
+                      )}
+                      {inv.catatan && (
+                        <p className="text-[0.7rem] mt-0.5" style={{ color: "var(--text-secondary)" }}>{inv.catatan}</p>
+                      )}
+                      <div className="mt-1">
+                        <ArchiveButton apiPath={`/api/investasi/${inv.id}`} archived />
+                      </div>
+                    </div>
+                    <div className="flex gap-3 text-right shrink-0">
+                      <div>
+                        <div className="section-title !mb-0.5">Modal OUT</div>
+                        <div className="text-[0.75rem] font-semibold" style={{ color: "var(--accent-red)" }}>
+                          {formatRupiah(totalOut)}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="section-title !mb-0.5">Return IN</div>
+                        <div className="text-[0.75rem] font-semibold" style={{ color: "var(--accent-green)" }}>
+                          {formatRupiah(totalIn)}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="section-title !mb-0.5">Profit</div>
+                        <div
+                          className="text-[0.75rem] font-semibold"
+                          style={{ color: profitBersih >= 0 ? "var(--accent-blue)" : "var(--accent-red)" }}
+                        >
+                          {profitBersih >= 0 ? "+" : ""}{formatRupiah(profitBersih)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </details>
+      )}
     </AppShell>
   );
 }

@@ -80,3 +80,42 @@ export async function PUT(
     return NextResponse.json({ message }, { status: 500 });
   }
 }
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { userId } = await requireUser();
+    const { id } = await params;
+    const murobahahId = Number(id);
+
+    const existing = await db.murobahah.findFirst({
+      where: { id: murobahahId, userId },
+      select: { id: true, archivedAt: true },
+    });
+    if (!existing) return NextResponse.json({ message: "Murobahah not found" }, { status: 404 });
+
+    const body = await req.json().catch(() => ({}));
+    const archived = body.archived === undefined ? existing.archivedAt === null : Boolean(body.archived);
+
+    await db.murobahah.update({
+      where: { id: murobahahId },
+      data: { archivedAt: archived ? new Date() : null },
+    });
+
+    const updated = await db.murobahah.findUnique({
+      where: { id: murobahahId },
+      include: {
+        template: true,
+        imbalHasilDiterima: { orderBy: { tanggal: "desc" } },
+      },
+    });
+
+    return NextResponse.json(updated);
+  } catch (err: unknown) {
+    console.error("MUROBAHAH_PATCH error:", err);
+    const message = err instanceof Error ? err.message : "Terjadi kesalahan server";
+    return NextResponse.json({ message }, { status: 500 });
+  }
+}

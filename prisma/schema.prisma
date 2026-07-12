@@ -140,6 +140,7 @@ model Investasi {
   tipe       TipeInvestasi
   status     StatusInvestasi @default(ACTIVE)
   catatan    String?
+  archivedAt DateTime?
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
 
@@ -149,6 +150,7 @@ model Investasi {
   overrides          TemplateOverride[]
 
   @@index([userId, tipe, status])
+  @@index([userId, archivedAt])
 }
 
 model TrxInvestasi {
@@ -312,6 +314,7 @@ model InvestasiTeman {
   tanggalMulai DateTime
   status      StatusInvestasiTeman @default(AKTIF)
   catatan     String?
+  archivedAt  DateTime?
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
 
@@ -320,6 +323,7 @@ model InvestasiTeman {
   deviden   Deviden[]
 
   @@index([userId, status])
+  @@index([userId, archivedAt])
   @@index([templateId])
 }
 
@@ -357,6 +361,7 @@ model Murobahah {
   status          StatusMurobahah  @default(AKTIF)
   catatan         String?
   buktiPath       String?
+  archivedAt      DateTime?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
@@ -365,6 +370,7 @@ model Murobahah {
   imbalHasilDiterima ImbalHasilDiterima[]
 
   @@index([userId, status])
+  @@index([userId, archivedAt])
   @@index([templateId])
 }
 

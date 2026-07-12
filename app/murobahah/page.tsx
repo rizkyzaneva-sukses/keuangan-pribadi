@@ -7,6 +7,7 @@ import { SearchBox } from "@/components/SearchBox";
 import { insensitiveFilter } from "@/lib/search";
 import { BuktiField } from "@/components/Bukti";
 import { DokumenList, type DokumenItem } from "@/components/Dokumen";
+import { ArchiveButton } from "@/components/ArchiveButton";
 
 export default async function MurobahahPage({
   searchParams,
@@ -47,6 +48,9 @@ export default async function MurobahahPage({
     dokumenByMurobahah.set(d.refId, arr);
   }
 
+  const activeList = list.filter((m) => !m.archivedAt);
+  const archivedList = list.filter((m) => m.archivedAt);
+
   return (
     <AppShell user={user || { email }} active="/murobahah">
       <div className="page-header mb-1">
@@ -63,10 +67,10 @@ export default async function MurobahahPage({
       </div>
 
       <div className="mt-6 space-y-3">
-        {list.length === 0 ? (
+        {activeList.length === 0 ? (
           <p style={{ color: "var(--text-muted)" }} className="text-[0.8rem]">Belum ada murobahah.</p>
         ) : (
-          list.map((m) => {
+          activeList.map((m) => {
             const totalImbal = m.imbalHasilDiterima.reduce((s, i) => s + i.jumlah, 0);
             const totalPokokDiterima = m.imbalHasilDiterima.reduce((s, i) => s + i.pokokDiterima, 0);
             const estimasiDiterima = m.pokok + m.totalImbalHasil;
@@ -102,6 +106,7 @@ export default async function MurobahahPage({
                         templates={templates}
                       />
                       <BuktiField tipe="Murobahah" id={m.id} buktiPath={m.buktiPath} size={16} />
+                      <ArchiveButton apiPath={`/api/murobahah/${m.id}`} archived={false} />
                     </div>
                   </div>
                   <div className="text-right text-[0.8rem] space-y-0.5">
@@ -164,6 +169,62 @@ export default async function MurobahahPage({
           })
         )}
       </div>
+
+      {archivedList.length > 0 && (
+        <details className="mt-6 card">
+          <summary className="cursor-pointer list-none font-semibold text-[0.85rem]" style={{ color: "var(--text-primary)" }}>
+            Arsip ({archivedList.length})
+          </summary>
+          <div className="mt-4 space-y-3">
+            {archivedList.map((m) => {
+              const totalImbal = m.imbalHasilDiterima.reduce((s, i) => s + i.jumlah, 0);
+              const totalPokokDiterima = m.imbalHasilDiterima.reduce((s, i) => s + i.pokokDiterima, 0);
+              const estimasiDiterima = m.pokok + m.totalImbalHasil;
+              const totalDiterima = totalPokokDiterima + totalImbal;
+              const sisaDiterima = estimasiDiterima - totalDiterima;
+              return (
+                <div
+                  key={m.id}
+                  className="rounded-md border border-[var(--bg-border)] p-4"
+                  style={{ backgroundColor: "var(--bg-elevated)" }}
+                >
+                  <div className="mb-2.5 flex items-start justify-between">
+                    <div>
+                      <h3 className="text-[0.85rem] font-semibold" style={{ color: "var(--text-primary)" }}>{m.namaPartner}</h3>
+                      <p className="text-[0.75rem]" style={{ color: "var(--text-muted)" }}>
+                        {formatTanggal(m.tanggalMulai)} → {formatTanggal(m.jatuhTempo)}{" "}
+                        <span className="badge-muted">ARSIP</span>
+                      </p>
+                      {m.catatan && <p className="mt-0.5 text-[0.75rem]" style={{ color: "var(--text-secondary)" }}>{m.catatan}</p>}
+                      <div className="mt-1">
+                        <ArchiveButton apiPath={`/api/murobahah/${m.id}`} archived />
+                      </div>
+                    </div>
+                    <div className="text-right text-[0.8rem] space-y-0.5">
+                      <div style={{ color: "var(--text-secondary)" }}>
+                        Pokok: <span className="font-semibold" style={{ color: "var(--accent-blue)" }}>{formatRupiah(m.pokok)}</span>
+                      </div>
+                      <div style={{ color: "var(--text-secondary)" }}>
+                        Total imbal:{" "}
+                        <span className="font-semibold" style={{ color: "var(--accent-green)" }}>
+                          {formatRupiah(m.totalImbalHasil)}
+                        </span>
+                      </div>
+                      <div style={{ color: "var(--text-secondary)" }}>
+                        Diterima:{" "}
+                        <span className="font-semibold" style={{ color: "var(--accent-green)" }}>{formatRupiah(totalDiterima)}</span>
+                      </div>
+                      <div style={{ color: "var(--text-secondary)" }}>
+                        Sisa: <span className="font-semibold" style={{ color: "var(--accent-gold)" }}>{formatRupiah(sisaDiterima)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </details>
+      )}
     </AppShell>
   );
 }

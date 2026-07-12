@@ -93,3 +93,46 @@ export async function PUT(
     return NextResponse.json({ message }, { status: 500 });
   }
 }
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { userId } = await requireUser();
+    const { id } = await params;
+    const investasiId = Number(id);
+
+    const investasi = await db.investasi.findFirst({
+      where: { id: investasiId, userId },
+      select: { id: true, archivedAt: true },
+    });
+
+    if (!investasi) {
+      return NextResponse.json({ message: "Investasi not found" }, { status: 404 });
+    }
+
+    const body = await req.json().catch(() => ({}));
+    const archived = body.archived === undefined ? investasi.archivedAt === null : Boolean(body.archived);
+
+    await db.investasi.update({
+      where: { id: investasiId },
+      data: { archivedAt: archived ? new Date() : null },
+    });
+
+    const updated = await db.investasi.findUnique({
+      where: { id: investasiId },
+      include: {
+        transaksi: { orderBy: { tanggal: "desc" } },
+        templateAssignment: { include: { template: { include: { pos: { orderBy: { urutan: "asc" } } } } } },
+        overrides: true,
+      },
+    });
+
+    return NextResponse.json(updated);
+  } catch (err: unknown) {
+    console.error("INVESTASI_PATCH error:", err);
+    const message = err instanceof Error ? err.message : "Terjadi kesalahan server";
+    return NextResponse.json({ message }, { status: 500 });
+  }
+}
