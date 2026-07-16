@@ -506,6 +506,7 @@ model UtangPiutang {
   jumlah         Int
   sudahDibayar   Int                 @default(0)
   catatan        String?
+  buktiPath      String?
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
 
@@ -523,6 +524,7 @@ model PembayaranUtangPiutang {
   tanggal         DateTime
   jumlah          Int
   keterangan      String?
+  buktiPath       String?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 

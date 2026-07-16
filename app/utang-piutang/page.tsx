@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { PembayaranUtangPiutangButton, UtangPiutangForm, UtangPiutangFilters } from "./Forms";
 import { insensitiveFilter } from "@/lib/search";
+import { BuktiField } from "@/components/Bukti";
 import type { Prisma } from "@prisma/client";
 
 export default async function UtangPiutangPage({
@@ -101,6 +102,9 @@ export default async function UtangPiutangPage({
                         {item.catatan}
                       </p>
                     )}
+                    <div className="mt-1.5">
+                      <BuktiField tipe="UtangPiutang" id={item.id} buktiPath={item.buktiPath} />
+                    </div>
                   </div>
                   <div className="text-right shrink-0">
                     <div className="section-title !mb-0.5">Total</div>
@@ -147,6 +151,7 @@ export default async function UtangPiutangPage({
                       tanggal: p.tanggal,
                       jumlah: p.jumlah,
                       keterangan: p.keterangan,
+                      buktiPath: p.buktiPath,
                     }))}
                   />
                 </div>

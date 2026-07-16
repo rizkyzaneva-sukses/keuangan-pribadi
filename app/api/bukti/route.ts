@@ -3,9 +3,9 @@ export const dynamic = "force-dynamic";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 
-type Tipe = "Deviden" | "TrxInvestasi" | "Murobahah" | "ImbalHasilDiterima";
+type Tipe = "Deviden" | "TrxInvestasi" | "Murobahah" | "ImbalHasilDiterima" | "UtangPiutang" | "PembayaranUtangPiutang";
 
-const ALLOWED: Tipe[] = ["Deviden", "TrxInvestasi", "Murobahah", "ImbalHasilDiterima"];
+const ALLOWED: Tipe[] = ["Deviden", "TrxInvestasi", "Murobahah", "ImbalHasilDiterima", "UtangPiutang", "PembayaranUtangPiutang"];
 const PATH_RE = /^\/api\/uploads\/[A-Za-z0-9_-]+\.[a-z]+$/i;
 
 export async function PATCH(req: NextRequest) {
@@ -47,6 +47,18 @@ export async function PATCH(req: NextRequest) {
         const rec = await db.imbalHasilDiterima.findFirst({ where: { id: numId, userId }, select: { id: true } });
         if (!rec) return NextResponse.json({ message: "Tidak ditemukan" }, { status: 404 });
         await db.imbalHasilDiterima.update({ where: { id: rec.id }, data: { buktiPath: path } });
+        break;
+      }
+      case "UtangPiutang": {
+        const rec = await db.utangPiutang.findFirst({ where: { id: numId, userId }, select: { id: true } });
+        if (!rec) return NextResponse.json({ message: "Tidak ditemukan" }, { status: 404 });
+        await db.utangPiutang.update({ where: { id: rec.id }, data: { buktiPath: path } });
+        break;
+      }
+      case "PembayaranUtangPiutang": {
+        const rec = await db.pembayaranUtangPiutang.findFirst({ where: { id: numId, userId }, select: { id: true } });
+        if (!rec) return NextResponse.json({ message: "Tidak ditemukan" }, { status: 404 });
+        await db.pembayaranUtangPiutang.update({ where: { id: rec.id }, data: { buktiPath: path } });
         break;
       }
     }

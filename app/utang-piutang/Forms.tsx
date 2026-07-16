@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { formatRupiah, formatTanggal } from "@/lib/format";
+import { BuktiUpload, BuktiField } from "@/components/Bukti";
 
 export function UtangPiutangFilters({
   jenis,
@@ -98,6 +99,7 @@ export function UtangPiutangForm() {
   const [jumlah, setJumlah] = useState(0);
   const [catatan, setCatatan] = useState("");
   const [catatKas, setCatatKas] = useState(true);
+  const [buktiPath, setBuktiPath] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -115,6 +117,7 @@ export function UtangPiutangForm() {
           jumlah,
           catatan,
           catatKas,
+          buktiPath,
         }),
       });
       if (!res.ok) {
@@ -127,6 +130,7 @@ export function UtangPiutangForm() {
       setJatuhTempo("");
       setCatatan("");
       setCatatKas(true);
+      setBuktiPath(null);
       setOpen(false);
       router.refresh();
     });
@@ -189,6 +193,9 @@ export function UtangPiutangForm() {
           className="form-input"
         />
       </div>
+      <div className="mt-3">
+        <BuktiUpload value={buktiPath} onChange={setBuktiPath} />
+      </div>
       <label className="mt-3 flex items-center gap-2 text-[0.78rem]" style={{ color: "var(--text-secondary)" }}>
         <input
           type="checkbox"
@@ -227,6 +234,7 @@ interface PembayaranItem {
   tanggal: string | Date;
   jumlah: number;
   keterangan: string | null;
+  buktiPath: string | null;
 }
 
 export function PembayaranUtangPiutangButton({
@@ -251,6 +259,7 @@ export function PembayaranUtangPiutangButton({
   const [jumlahBayar, setJumlahBayar] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const [catatKas, setCatatKas] = useState(true);
+  const [buktiPath, setBuktiPath] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -278,6 +287,7 @@ export function PembayaranUtangPiutangButton({
           tanggal,
           keterangan,
           catatKas,
+          buktiPath,
         }),
       });
       if (!res.ok) {
@@ -289,6 +299,7 @@ export function PembayaranUtangPiutangButton({
       setJumlahBayar("");
       setKeterangan("");
       setCatatKas(true);
+      setBuktiPath(null);
       router.refresh();
     });
   };
@@ -406,6 +417,10 @@ export function PembayaranUtangPiutangButton({
                 <label className="label">Keterangan</label>
                 <input value={keterangan} onChange={(e) => setKeterangan(e.target.value)} className="form-input" />
               </div>
+              <div>
+                <label className="label">Bukti Transfer</label>
+                <BuktiUpload value={buktiPath} onChange={setBuktiPath} label="Bukti TF" />
+              </div>
               <label className="flex items-center gap-2 text-[0.78rem]" style={{ color: "var(--text-secondary)" }}>
                 <input type="checkbox" checked={catatKas} onChange={(e) => setCatatKas(e.target.checked)} />
                 Catat juga ke Kas Harian
@@ -477,15 +492,18 @@ export function PembayaranUtangPiutangButton({
                     borderRadius: "var(--radius-md)",
                   }}
                 >
-                  <div>
-                    <div style={{ fontSize: "0.8rem", color: "var(--text-primary)", fontWeight: 500 }}>
-                      {item.keterangan || "Pembayaran"}
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flex: 1, minWidth: 0 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "0.8rem", color: "var(--text-primary)", fontWeight: 500 }}>
+                        {item.keterangan || "Pembayaran"}
+                      </div>
+                      <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "2px" }}>
+                        {formatTanggal(item.tanggal)}
+                      </div>
                     </div>
-                    <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "2px" }}>
-                      {formatTanggal(item.tanggal)}
-                    </div>
+                    <BuktiField tipe="PembayaranUtangPiutang" id={item.id} buktiPath={item.buktiPath} />
                   </div>
-                  <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--accent-green)" }}>
+                  <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--accent-green)", marginLeft: "0.75rem", flexShrink: 0 }}>
                     {formatRupiah(item.jumlah)}
                   </div>
                 </div>

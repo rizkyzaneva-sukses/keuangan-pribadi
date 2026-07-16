@@ -158,7 +158,7 @@ export function BuktiThumb({ path, size = 14 }: { path: string; size?: number })
   );
 }
 
-type BuktiTipe = "Deviden" | "TrxInvestasi" | "Murobahah" | "ImbalHasilDiterima";
+type BuktiTipe = "Deviden" | "TrxInvestasi" | "Murobahah" | "ImbalHasilDiterima" | "UtangPiutang" | "PembayaranUtangPiutang";
 
 export function BuktiField({
   tipe,

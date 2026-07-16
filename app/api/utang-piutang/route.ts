@@ -62,6 +62,7 @@ export async function POST(req: NextRequest) {
     const jatuhTempo = body.jatuhTempo ? new Date(body.jatuhTempo) : null;
     const catatan = body.catatan ? String(body.catatan).trim() : "";
     const catatKas = body.catatKas !== false;
+    const buktiPath = typeof body.buktiPath === "string" && body.buktiPath ? body.buktiPath : null;
 
     if ((jenis !== "UTANG" && jenis !== "PIUTANG") || !namaPihak || !jumlah || !tanggal) {
       return NextResponse.json({ message: "Data utang/piutang belum lengkap" }, { status: 400 });
@@ -81,6 +82,7 @@ export async function POST(req: NextRequest) {
           jatuhTempo,
           jumlah,
           catatan: catatan || null,
+          buktiPath,
         },
       });
 

@@ -64,6 +64,7 @@ export async function POST(
     const tanggal = body.tanggal ? new Date(body.tanggal) : null;
     const keterangan = body.keterangan ? String(body.keterangan).trim() : "";
     const catatKas = body.catatKas !== false;
+    const buktiPath = typeof body.buktiPath === "string" && body.buktiPath ? body.buktiPath : null;
 
     if (!jumlah || !tanggal) {
       return NextResponse.json({ message: "Jumlah dan tanggal wajib diisi" }, { status: 400 });
@@ -97,6 +98,7 @@ export async function POST(
           tanggal,
           jumlah,
           keterangan: keterangan || null,
+          buktiPath,
         },
       });
 
