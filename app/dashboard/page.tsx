@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { formatRupiah } from "@/lib/format";
 import { KasTrendChart, WalletDistributionChart } from "@/components/Charts";
+import { ResetWalletButton } from "@/app/wallet/ResetWalletButton";
 
 export default async function DashboardPage() {
   const { userId, email } = await requireUser();
@@ -149,7 +150,10 @@ export default async function DashboardPage() {
       </section>
 
       <section className="mt-6 card">
-        <div className="section-title">Wallet Pos Alokasi</div>
+        <div className="flex items-center justify-between mb-3">
+          <div className="section-title !mb-0">Wallet Pos Alokasi</div>
+          <ResetWalletButton totalSaldo={totalSaldoWallet} />
+        </div>
         {walletPos.length === 0 ? (
           <p className="text-[0.8rem]" style={{ color: "var(--text-secondary)" }}>Belum ada wallet pos. Setup template alokasi terlebih dahulu.</p>
         ) : (
