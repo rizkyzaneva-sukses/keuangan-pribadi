@@ -103,9 +103,8 @@ export async function PATCH(
     const { id } = await params;
     const investasiId = Number(id);
 
-    const investasi = await db.investasi.findFirst({
+    const investasi = await db.investasi.findUnique({
       where: { id: investasiId, userId },
-      select: { id: true, archivedAt: true },
     });
 
     if (!investasi) {

@@ -9,32 +9,35 @@ export function UtangPiutangFilters({
   jenis,
   status,
   q,
+  sort,
 }: {
   jenis: string;
   status: string;
   q: string;
+  sort: string;
 }) {
   const router = useRouter();
-  const [filters, setFilters] = useState({ jenis, status, q });
+  const [filters, setFilters] = useState({ jenis, status, q, sort });
   const [isPending, startTransition] = useTransition();
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
-    setFilters({ jenis, status, q });
-  }, [jenis, status, q]);
+    setFilters({ jenis, status, q, sort });
+  }, [jenis, status, q, sort]);
 
-  const apply = (next: { jenis: string; status: string; q: string }) => {
+  const apply = (next: { jenis: string; status: string; q: string; sort: string }) => {
     const params = new URLSearchParams();
     if (next.jenis) params.set("jenis", next.jenis);
     if (next.status) params.set("status", next.status);
     if (next.q) params.set("q", next.q);
+    if (next.sort && next.sort !== "terbaru") params.set("sort", next.sort);
     const qs = params.toString();
     startTransition(() => {
       router.push(qs ? `/utang-piutang?${qs}` : "/utang-piutang");
     });
   };
 
-  const onSelect = (key: "jenis" | "status", value: string) => {
+  const onSelect = (key: "jenis" | "status" | "sort", value: string) => {
     const next = { ...filters, [key]: value };
     setFilters(next);
     apply(next);
@@ -76,6 +79,17 @@ export function UtangPiutangFilters({
         <option value="BELUM">BELUM</option>
         <option value="SEBAGIAN">SEBAGIAN</option>
         <option value="LUNAS">LUNAS</option>
+      </select>
+      <select
+        name="sort"
+        value={filters.sort}
+        onChange={(e) => onSelect("sort", e.target.value)}
+        className="form-input"
+        style={{ width: "auto" }}
+      >
+        <option value="terbaru">Terbaru</option>
+        <option value="jatuh_tempo">JT Terdekat</option>
+        <option value="nominal">Nominal Besar</option>
       </select>
       <input
         type="text"
@@ -229,12 +243,218 @@ export function UtangPiutangForm() {
   );
 }
 
+// === Improvement #4: Edit Form ===
+export function UtangPiutangEditForm({
+  id,
+  initialJenis,
+  initialNamaPihak,
+  initialTanggal,
+  initialJatuhTempo,
+  initialJumlah,
+  initialCatatan,
+  initialBuktiPath,
+}: {
+  id: number;
+  initialJenis: "UTANG" | "PIUTANG";
+  initialNamaPihak: string;
+  initialTanggal: Date | string;
+  initialJatuhTempo: Date | string | null;
+  initialJumlah: number;
+  initialCatatan: string | null;
+  initialBuktiPath: string | null;
+}) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [jenis, setJenis] = useState<"UTANG" | "PIUTANG">(initialJenis);
+  const [namaPihak, setNamaPihak] = useState(initialNamaPihak);
+  const [tanggal, setTanggal] = useState(
+    typeof initialTanggal === "string" ? initialTanggal.slice(0, 10) : new Date(initialTanggal).toISOString().slice(0, 10)
+  );
+  const [jatuhTempo, setJatuhTempo] = useState(
+    initialJatuhTempo
+      ? typeof initialJatuhTempo === "string"
+        ? initialJatuhTempo.slice(0, 10)
+        : new Date(initialJatuhTempo).toISOString().slice(0, 10)
+      : ""
+  );
+  const [jumlah, setJumlah] = useState(initialJumlah);
+  const [catatan, setCatatan] = useState(initialCatatan || "");
+  const [buktiPath, setBuktiPath] = useState<string | null>(initialBuktiPath);
+  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  const submit = () => {
+    setError("");
+    startTransition(async () => {
+      const res = await fetch(`/api/utang-piutang/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jenis,
+          namaPihak,
+          tanggal,
+          jatuhTempo: jatuhTempo || null,
+          jumlah,
+          catatan: catatan || null,
+          buktiPath,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setError(body?.message || "Gagal mengupdate catatan");
+        return;
+      }
+      setOpen(false);
+      router.refresh();
+    });
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="btn-ghost px-2 py-1 text-[0.65rem]"
+        style={{ color: "var(--accent-gold)" }}
+      >
+        ✏️ Edit
+      </button>
+
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 50,
+            backgroundColor: "rgba(0,0,0,0.6)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--bg-border)",
+              borderRadius: "var(--radius-lg)",
+              padding: "1.5rem",
+              width: "min(480px, 90vw)",
+              maxHeight: "85vh",
+              overflowY: "auto",
+              boxShadow: "0 24px 48px rgba(0,0,0,0.5)",
+            }}
+          >
+            <div style={{ marginBottom: "1.25rem" }}>
+              <h3 style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.25rem" }}>
+                Edit {initialJenis === "UTANG" ? "Utang" : "Piutang"}
+              </h3>
+              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                {initialNamaPihak}
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+              <div>
+                <label className="label">Jenis</label>
+                <select
+                  value={jenis}
+                  onChange={(e) => setJenis(e.target.value as "UTANG" | "PIUTANG")}
+                  className="form-input"
+                >
+                  <option value="UTANG">UTANG</option>
+                  <option value="PIUTANG">PIUTANG</option>
+                </select>
+              </div>
+              <div>
+                <label className="label">Nama Pihak</label>
+                <input value={namaPihak} onChange={(e) => setNamaPihak(e.target.value)} className="form-input" />
+              </div>
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <div style={{ flex: 1 }}>
+                  <label className="label">Tanggal</label>
+                  <input type="date" value={tanggal} onChange={(e) => setTanggal(e.target.value)} className="form-input" />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label className="label">Jatuh Tempo</label>
+                  <input type="date" value={jatuhTempo} onChange={(e) => setJatuhTempo(e.target.value)} className="form-input" />
+                </div>
+              </div>
+              <div>
+                <label className="label">Nominal</label>
+                <input type="number" value={jumlah} onChange={(e) => setJumlah(Number(e.target.value))} className="form-input" />
+              </div>
+              <div>
+                <label className="label">Catatan</label>
+                <input value={catatan} onChange={(e) => setCatatan(e.target.value)} className="form-input" placeholder="Opsional" />
+              </div>
+              <div>
+                <label className="label">Bukti</label>
+                <BuktiUpload value={buktiPath} onChange={setBuktiPath} />
+              </div>
+              {error && <p style={{ fontSize: "0.75rem", color: "var(--accent-red)" }}>{error}</p>}
+              <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+                <button type="button" onClick={() => setOpen(false)} className="btn-ghost px-4 py-2" style={{ fontSize: "0.8rem" }}>
+                  Batal
+                </button>
+                <button type="button" onClick={submit} disabled={isPending} className="btn-primary px-4 py-2" style={{ fontSize: "0.8rem" }}>
+                  {isPending ? "Menyimpan..." : "Simpan Perubahan"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 interface PembayaranItem {
   id: number;
   tanggal: string | Date;
   jumlah: number;
   keterangan: string | null;
   buktiPath: string | null;
+}
+
+// === Improvement #4: Delete Button ===
+export function UtangPiutangDeleteButton({
+  id,
+  jenis,
+  namaPihak,
+}: {
+  id: number;
+  jenis: "UTANG" | "PIUTANG";
+  namaPihak: string;
+}) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const handleDelete = () => {
+    if (!confirm(`Yakin hapus ${jenis} "${namaPihak}"? Semua cicilan juga akan dihapus.`)) return;
+    startTransition(async () => {
+      const res = await fetch(`/api/utang-piutang/${id}?hapusKas=true`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        router.refresh();
+      }
+    });
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleDelete}
+      disabled={isPending}
+      className="btn-ghost px-2 py-1 text-[0.65rem] disabled:opacity-50"
+      style={{ color: "var(--accent-red)" }}
+    >
+      {isPending ? "..." : "🗑️ Hapus"}
+    </button>
+  );
 }
 
 export function PembayaranUtangPiutangButton({
